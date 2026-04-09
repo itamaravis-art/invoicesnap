@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 ${reports.map(r => `${r.month}/${r.year}: ₪${r.total_amount} (${r.receipt_count} קבלות, מע"מ ₪${r.total_vat})`).join("\n")}
 
 20 קבלות אחרונות:
-${receipts.map(r => `${r.receipt_date}: ${r.vendor_name || "?"} - ₪${r.total_amount || 0} (${(r.category as Record<string,string>|null)?.name_he || "ללא קטגוריה"})`).join("\n")}
+${receipts.map(r => `${r.receipt_date}: ${r.vendor_name || "?"} - ₪${r.total_amount || 0} (${(r.category as unknown as Record<string,string> | null)?.name_he || "ללא קטגוריה"})`).join("\n")}
 
 חודש נוכחי: ${currentMonth}/${currentYear}`;
 
