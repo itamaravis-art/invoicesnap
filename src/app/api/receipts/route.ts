@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/constants";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
-  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
+  const limit = Math.min(parseInt(searchParams.get("limit") || String(DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE);
   const categoryId = searchParams.get("category_id");
   const vendorId = searchParams.get("vendor_id");
   const month = searchParams.get("month"); // YYYY-MM format
@@ -25,7 +26,10 @@ export async function GET(request: NextRequest) {
 
   if (categoryId) query = query.eq("category_id", categoryId);
   if (vendorId) query = query.eq("vendor_id", vendorId);
-  if (search) query = query.or(`vendor_name.ilike.%${search}%,notes.ilike.%${search}%`);
+  if (search) {
+    const sanitized = search.replace(/[%_,.*()]/g, '');
+    query = query.or(`vendor_name.ilike.%${sanitized}%,notes.ilike.%${sanitized}%`);
+  }
   if (month) {
     const [y, m] = month.split("-").map(Number);
     const start = new Date(y, m - 1, 1).toISOString().split("T")[0];

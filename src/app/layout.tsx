@@ -7,6 +7,13 @@ export const metadata: Metadata = {
   title: "InvoiceSnap - ניהול קבלות חכם",
   description: "צלם, ארגן ושלח קבלות לרואה חשבון בקליק אחד. זיהוי אוטומטי, גיבוי לגוגל דרייב, ומצב אופליין.",
   manifest: "/manifest.json",
+  openGraph: {
+    title: "InvoiceSnap - ניהול קבלות חכם",
+    description: "צלם, ארגן ושלח קבלות לרואה חשבון בקליק אחד",
+    type: "website",
+    locale: "he_IL",
+    siteName: "InvoiceSnap",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

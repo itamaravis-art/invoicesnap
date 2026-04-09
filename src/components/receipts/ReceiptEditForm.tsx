@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { MaterialIcon } from "@/components/shared/MaterialIcon";
-import { PAYMENT_METHODS, RECEIPT_TYPES } from "@/lib/constants";
+import { PAYMENT_METHODS, RECEIPT_TYPES, DEFAULT_VAT_RATE } from "@/lib/constants";
 
 interface ReceiptData {
   id: string;
@@ -49,7 +49,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
 
   // Auto-calculate VAT
   function handleAmountChange(total: number) {
-    const vat = Math.round((total / 1.17) * 0.17 * 100) / 100;
+    const vat = Math.round((total / (1 + DEFAULT_VAT_RATE / 100)) * (DEFAULT_VAT_RATE / 100) * 100) / 100;
     const before = Math.round((total - vat) * 100) / 100;
     setForm((prev) => ({ ...prev, total_amount: total, vat_amount: vat, amount_before_vat: before }));
     setSaved(false);

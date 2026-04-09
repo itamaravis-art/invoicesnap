@@ -56,6 +56,8 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={cn(
         "pointer-events-auto px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm font-medium animate-[slideDown_0.3s_ease-out]",
         {

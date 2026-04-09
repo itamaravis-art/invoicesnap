@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     .order("occurrence_count", { ascending: false });
 
   if (search) {
-    query = query.ilike("name", `%${search}%`);
+    const sanitized = search.replace(/[%_,.*()]/g, '');
+    query = query.ilike("name", `%${sanitized}%`);
   }
 
   const { data, error } = await query.limit(50);

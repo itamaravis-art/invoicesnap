@@ -41,17 +41,8 @@ export const DEFAULT_CATEGORIES = [
   { name_he: "אחר", name_en: "Other", icon: "more_horiz", color: "#737785" },
 ] as const;
 
-export const CATEGORY_ICONS: Record<string, string> = {
-  shopping_cart: "shopping_cart",
-  local_gas_station: "local_gas_station",
-  restaurant: "restaurant",
-  directions_car: "directions_car",
-  print: "print",
-  computer: "computer",
-  campaign: "campaign",
-  shield: "shield",
-  phone_android: "phone_android",
-  home: "home",
-  work: "work",
-  more_horiz: "more_horiz",
-};
+export const OCR_MIN_CONFIDENCE = 0.1;
+export const OCR_MODEL = "gemini-2.5-flash";
+export const OCR_MAX_TOKENS = 4096;
+export const DEFAULT_PAGE_SIZE = 20;
+export const MAX_PAGE_SIZE = 50;

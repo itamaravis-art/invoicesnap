@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdmin, logAdminAction } from "@/lib/admin";
 import { processReceiptImage } from "@/lib/ocr/process";
+import { OCR_MIN_CONFIDENCE } from "@/lib/constants";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       receipt_number: ocrResult.receipt_number,
       payment_method: ocrResult.payment_method,
       receipt_type: ocrResult.receipt_type,
-      ocr_status: ocrResult.confidence > 0.1 ? "completed" : "failed",
+      ocr_status: ocrResult.confidence > OCR_MIN_CONFIDENCE ? "completed" : "failed",
       ocr_confidence: ocrResult.confidence,
       ocr_raw_response: ocrResult as unknown as Record<string, unknown>,
     }).eq("id", id);

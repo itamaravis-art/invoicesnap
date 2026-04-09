@@ -1,4 +1,5 @@
 import type { OcrResult, PaymentMethod, ReceiptType } from "@/types";
+import { DEFAULT_VAT_RATE } from "@/lib/constants";
 
 const VALID_PAYMENT_METHODS: PaymentMethod[] = ["cash", "credit", "transfer", "check", "bit", "paybox", "other"];
 const VALID_RECEIPT_TYPES: ReceiptType[] = ["receipt", "invoice", "tax_invoice", "credit_note", "other"];
@@ -11,7 +12,7 @@ export function validateOcrResult(raw: Record<string, unknown>): OcrResult {
 
   // Cross-calculate VAT fields
   if (totalAmount != null && vatAmount == null && amountBeforeVat == null) {
-    vatAmount = round(totalAmount / 1.17 * 0.17);
+    vatAmount = round(totalAmount / (1 + DEFAULT_VAT_RATE / 100) * (DEFAULT_VAT_RATE / 100));
     amountBeforeVat = round(totalAmount - vatAmount);
   } else if (totalAmount != null && vatAmount != null && amountBeforeVat == null) {
     amountBeforeVat = round(totalAmount - vatAmount);

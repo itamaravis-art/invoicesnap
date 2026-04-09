@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { OCR_SYSTEM_PROMPT } from "./prompt";
 import { validateOcrResult } from "./validate";
+import { OCR_MODEL, OCR_MAX_TOKENS } from "@/lib/constants";
 import type { OcrResult } from "@/types";
 
 export async function processReceiptImage(imageBuffer: Buffer, mimeType: string): Promise<OcrResult> {
@@ -9,10 +10,10 @@ export async function processReceiptImage(imageBuffer: Buffer, mimeType: string)
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: OCR_MODEL,
     generationConfig: {
       temperature: 0.1,
-      maxOutputTokens: 4096,
+      maxOutputTokens: OCR_MAX_TOKENS,
       responseMimeType: "application/json",
     },
   });

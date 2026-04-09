@@ -68,9 +68,9 @@ export default function LandingPage() {
                 <div className="flex justify-between items-center px-4 py-2 text-[10px] text-on-surface-variant">
                   <span>12:34</span>
                   <div className="flex gap-1">
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>signal_cellular_alt</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>wifi</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>battery_full</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">signal_cellular_alt</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">wifi</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">battery_full</span>
                   </div>
                 </div>
                 {/* Mock app content */}
@@ -95,7 +95,7 @@ export default function LandingPage() {
                   ].map((item) => (
                     <div key={item.name} className="flex items-center gap-3 bg-surface-container-lowest rounded-xl p-3">
                       <div className="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-primary" style={{ fontSize: 16 }}>{item.icon}</span>
+                        <span className="material-symbols-outlined text-primary" style={{ fontSize: 16 }} aria-hidden="true">{item.icon}</span>
                       </div>
                       <div className="flex-1">
                         <p className="text-[10px] font-bold">{item.name}</p>
@@ -144,7 +144,7 @@ export default function LandingPage() {
                 className={`bg-gradient-to-br ${f.gradient} border border-outline-variant/30 rounded-3xl p-8 hover:scale-[1.02] transition-all duration-300`}
               >
                 <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
-                  <span className="material-symbols-outlined text-white text-2xl">{f.icon}</span>
+                  <span className="material-symbols-outlined text-white text-2xl" aria-hidden="true">{f.icon}</span>
                 </div>
                 <h4 className="text-xl font-black text-on-surface mb-2">{f.title}</h4>
                 <p className="text-sm text-on-surface-variant leading-relaxed">{f.desc}</p>
@@ -186,7 +186,7 @@ export default function LandingPage() {
             href="/signup"
             className="gradient-primary text-white px-10 py-4 rounded-full text-lg font-bold inline-flex items-center gap-2 hover:shadow-xl hover:shadow-primary/25 transition-all active:scale-95 animate-pulse-glow"
           >
-            <span className="material-symbols-outlined">rocket_launch</span>
+            <span className="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
             התחל בחינם
           </Link>
         </section>

@@ -23,7 +23,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!authorized || !adminClient) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
-  const { data, error } = await adminClient.from("user_settings").update(body).eq("user_id", id).select().single();
+  const allowedFields = ["display_name", "business_name", "business_id", "vat_rate", "monthly_budget"];
+  const updateData: Record<string, unknown> = {};
+  for (const f of allowedFields) { if (f in body) updateData[f] = body[f]; }
+  const { data, error } = await adminClient.from("user_settings").update(updateData).eq("user_id", id).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   await logAdminAction(userEmail!, "update_user", "user", id, body);

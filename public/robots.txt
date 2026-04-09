@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /receipts
+Disallow: /settings
+
+Sitemap: https://invoicesnap-sigma.vercel.app/sitemap.xml

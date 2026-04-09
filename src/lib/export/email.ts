@@ -2,7 +2,9 @@ import { Resend } from "resend";
 import { getHebrewMonthName } from "@/lib/utils";
 
 function getResend() {
-  return new Resend(process.env.RESEND_API_KEY || "placeholder");
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY not configured");
+  return new Resend(key);
 }
 
 interface SendReportEmailParams {

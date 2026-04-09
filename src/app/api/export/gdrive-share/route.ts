@@ -14,6 +14,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(accountant_email)) {
+    return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+  }
+
   const client = await getActiveDriveClient(user.id);
   if (!client) {
     return NextResponse.json({ error: "Google Drive not connected" }, { status: 400 });

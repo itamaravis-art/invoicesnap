@@ -24,6 +24,10 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
+  if (!body.name_he || typeof body.name_he !== "string" || body.name_he.trim().length === 0 || body.name_he.length > 100) {
+    return NextResponse.json({ error: "Invalid category name" }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from("categories")
     .insert({

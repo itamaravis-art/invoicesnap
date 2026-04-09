@@ -6,7 +6,8 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/") && ["POST", "PATCH", "DELETE"].includes(request.method)) {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
-    if (origin && host && !origin.includes(host)) {
+    const originUrl = origin ? new URL(origin) : null;
+    if (originUrl && host && originUrl.host !== host) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
   }

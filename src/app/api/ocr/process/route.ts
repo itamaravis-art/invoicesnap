@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { processReceiptImage } from "@/lib/ocr/process";
+import { OCR_MIN_CONFIDENCE } from "@/lib/constants";
 
 export const maxDuration = 60;
 
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       receipt_type: ocrResult.receipt_type,
       currency: ocrResult.currency,
       category_id: categoryId,
-      ocr_status: ocrResult.confidence > 0.1 ? "completed" : "failed",
+      ocr_status: ocrResult.confidence > OCR_MIN_CONFIDENCE ? "completed" : "failed",
       ocr_confidence: ocrResult.confidence,
       ocr_raw_response: ocrResult as unknown as Record<string, unknown>,
       ocr_language: ocrResult.language,
@@ -122,6 +123,6 @@ export async function POST(request: NextRequest) {
       .update({ ocr_status: "failed" })
       .eq("id", receipt_id);
 
-    return NextResponse.json({ error: "OCR processing failed", details: errorMsg }, { status: 500 });
+    return NextResponse.json({ error: "OCR processing failed" }, { status: 500 });
   }
 }

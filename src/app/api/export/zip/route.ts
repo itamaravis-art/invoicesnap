@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
+  const endDate = new Date(parseInt(year), parseInt(month), 0).toISOString().split("T")[0];
 
   const { data: receipts } = await supabase
     .from("receipts")
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         archive.append(buffer, { name: `${prefix}/receipts/${fileName}` });
       }
     } catch {
-      // Skip failed downloads
+      // Skip files that fail to download - ZIP will contain available files only
     }
   }
 

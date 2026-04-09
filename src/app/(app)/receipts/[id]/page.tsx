@@ -56,7 +56,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
       {/* Receipt image */}
       {imageUrl && (
         <div className="bg-surface-container rounded-3xl overflow-hidden">
-          <img src={imageUrl} alt="Receipt" className="w-full object-contain max-h-80" />
+          <img src={imageUrl} alt={receipt.vendor_name ? `קבלה מ-${receipt.vendor_name}` : "תמונת קבלה"} className="w-full object-contain max-h-80" />
         </div>
       )}
 
