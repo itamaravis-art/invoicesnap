@@ -96,16 +96,27 @@ export function BulkUpload() {
           return updated;
         });
 
-        // Trigger OCR (fire and forget)
+        // Trigger OCR
         fetch("/api/ocr/process", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ receipt_id: receipt.id, image_path: path }),
-        }).then(() => {
+        }).then(async (res) => {
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.details || data.error || `OCR failed (${res.status})`);
+          }
           setItems((prev) => {
             const updated = [...prev];
             const idx = updated.findIndex((u) => u.receiptId === receipt.id);
             if (idx >= 0) updated[idx] = { ...updated[idx], status: "done" };
+            return updated;
+          });
+        }).catch((ocrErr) => {
+          setItems((prev) => {
+            const updated = [...prev];
+            const idx = updated.findIndex((u) => u.receiptId === receipt.id);
+            if (idx >= 0) updated[idx] = { ...updated[idx], status: "error", error: String(ocrErr) };
             return updated;
           });
         });
