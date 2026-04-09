@@ -143,8 +143,8 @@ export function BulkUpload() {
         className="w-full border-2 border-dashed border-outline-variant rounded-2xl p-6 text-center hover:bg-surface-container transition-all active:scale-[0.98]"
       >
         <MaterialIcon icon="upload_file" size={32} className="text-primary mb-2" />
-        <p className="font-bold text-on-surface text-sm">לחץ לבחירת מספר קבלות</p>
-        <p className="text-xs text-on-surface-variant">ניתן לבחור מספר תמונות בבת אחת</p>
+        <p className="font-bold text-on-surface text-sm">בחר קבלות להעלאה</p>
+        <p className="text-xs text-on-surface-variant">אפשר לבחור כמה תמונות בבת אחת</p>
       </button>
       <input
         ref={fileInputRef}
@@ -186,6 +186,7 @@ export function BulkUpload() {
                 {item.status === "pending" && (
                   <button
                     onClick={() => removeItem(index)}
+                    title="הסר תמונה"
                     className="absolute top-1 end-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center"
                   >
                     <MaterialIcon icon="close" size={14} />
@@ -198,7 +199,7 @@ export function BulkUpload() {
           {/* Upload button */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-on-surface-variant">
-              {doneCount}/{items.length} הושלמו
+              {doneCount} מתוך {items.length} הועלו בהצלחה
             </p>
             {pendingCount > 0 && (
               <button
@@ -206,7 +207,7 @@ export function BulkUpload() {
                 disabled={uploading}
                 className="bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm disabled:opacity-50 active:scale-95 transition-all"
               >
-                {uploading ? "מעלה..." : `העלה ${pendingCount} קבלות`}
+                {uploading ? "מעלה קבלות..." : `העלה ${pendingCount} קבלות לעיבוד`}
               </button>
             )}
             {pendingCount === 0 && doneCount > 0 && (
@@ -214,7 +215,7 @@ export function BulkUpload() {
                 onClick={() => router.push("/receipts")}
                 className="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-bold text-sm active:scale-95 transition-all"
               >
-                עבור לקבלות
+                צפה בקבלות שהועלו
               </button>
             )}
           </div>

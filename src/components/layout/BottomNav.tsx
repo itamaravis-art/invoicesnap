@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { MaterialIcon } from "@/components/shared/MaterialIcon";
 
 const tabs = [
-  { href: "/dashboard", icon: "dashboard", label: "דאשבורד" },
+  { href: "/dashboard", icon: "dashboard", label: "ראשי" },
   { href: "/receipts/new", icon: "photo_camera", label: "סריקה" },
-  { href: "/receipts", icon: "fact_check", label: "סקירה" },
-  { href: "/reports", icon: "archive", label: "ארכיון" },
+  { href: "/receipts", icon: "fact_check", label: "קבלות" },
+  { href: "/reports", icon: "archive", label: "דוחות" },
 ];
 
 export function BottomNav() {

@@ -51,7 +51,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ y
           className="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1"
         >
           <span className="material-symbols-outlined text-lg">send</span>
-          שלח לרו&quot;ח
+          שלח לרואה חשבון
         </Link>
       </div>
 
@@ -108,7 +108,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ y
                   </span>
                 </div>
                 <div>
-                  <p className="font-bold text-on-surface text-sm">{receipt.vendor_name || "ספק לא ידוע"}</p>
+                  <p className="font-bold text-on-surface text-sm">{receipt.vendor_name || "שם ספק לא זוהה"}</p>
                   <p className="text-xs text-on-surface-variant">
                     {receipt.receipt_date ? new Date(receipt.receipt_date).toLocaleDateString("he-IL") : ""}
                   </p>
@@ -120,7 +120,7 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ y
             </Link>
           ))
         ) : (
-          <p className="text-center text-on-surface-variant py-8">אין קבלות לחודש זה</p>
+          <p className="text-center text-on-surface-variant py-8">לא נמצאו קבלות לחודש זה</p>
         )}
       </div>
     </section>

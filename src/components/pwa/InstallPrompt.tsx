@@ -41,15 +41,15 @@ export function InstallPrompt() {
         <MaterialIcon icon="install_mobile" className="text-on-primary-container" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-on-surface text-sm">התקן את InvoiceSnap</p>
-        <p className="text-xs text-on-surface-variant">גישה מהירה מהמסך הראשי</p>
+        <p className="font-bold text-on-surface text-sm">התקן את InvoiceSnap על הטלפון</p>
+        <p className="text-xs text-on-surface-variant">גישה מהירה מהמסך הראשי, גם בלי אינטרנט</p>
       </div>
       <div className="flex gap-2 shrink-0">
         <button
           onClick={() => setShowPrompt(false)}
           className="text-xs text-on-surface-variant px-3 py-1.5 rounded-full hover:bg-surface-container"
         >
-          אח״כ
+          לא עכשיו
         </button>
         <button
           onClick={handleInstall}

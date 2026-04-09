@@ -23,7 +23,7 @@ export function OfflineIndicator() {
   return (
     <div className="fixed top-0 inset-x-0 z-[100] bg-amber-500 text-white text-center py-2 text-sm font-medium flex items-center justify-center gap-2">
       <MaterialIcon icon="cloud_off" size={18} />
-      <span>אופליין - הנתונים יסתנכרנו כשתחזור לרשת</span>
+      <span>אין חיבור לאינטרנט. הנתונים יסונכרנו אוטומטית כשתתחבר</span>
     </div>
   );
 }

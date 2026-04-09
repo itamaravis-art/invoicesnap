@@ -41,7 +41,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
       <div className="flex items-center justify-between">
         <Link href="/receipts" className="flex items-center gap-1 text-primary font-bold text-sm">
           <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          חזרה
+          חזור לקבלות
         </Link>
         <span className={`text-xs px-3 py-1 rounded-full font-bold ${
           receipt.ocr_status === "completed" ? "bg-secondary-container text-on-secondary-container" :
@@ -49,7 +49,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
           "bg-tertiary-container text-on-tertiary-container"
         }`}>
           {receipt.ocr_status === "completed" ? "אושר" :
-           receipt.ocr_status === "failed" ? "נכשל" : "בבדיקה"}
+           receipt.ocr_status === "failed" ? "נכשל" : "בעיבוד"}
         </span>
       </div>
 
@@ -65,7 +65,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-2xl font-black text-on-surface">
-              {receipt.vendor_name || "ספק לא ידוע"}
+              {receipt.vendor_name || "שם ספק לא זוהה"}
             </h2>
             {receipt.receipt_date && (
               <p className="text-sm text-on-surface-variant">{formatDate(receipt.receipt_date)}</p>
@@ -133,7 +133,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary">cloud</span>
           <span className="text-sm font-medium">
-            {receipt.gdrive_synced ? "מסונכרן ב-Google Drive" : "לא מסונכרן"}
+            {receipt.gdrive_synced ? "מסונכרן ב-Google Drive" : "עדיין לא מסונכרן"}
           </span>
         </div>
         {receipt.gdrive_synced && (

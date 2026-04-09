@@ -28,9 +28,9 @@ export default function FirstReceiptPage() {
       <div className="w-20 h-20 rounded-full bg-primary-container flex items-center justify-center mx-auto">
         <span className="material-symbols-outlined text-4xl text-on-primary-container">photo_camera</span>
       </div>
-      <h2 className="text-2xl font-black text-on-surface">סרוק את הקבלה הראשונה שלך!</h2>
+      <h2 className="text-2xl font-black text-on-surface">הגיע הרגע! בואו נסרוק קבלה</h2>
       <p className="text-on-surface-variant">
-        אתה מוכן להתחיל. לחץ על כפתור המצלמה בכל רגע כדי לסרוק קבלה.
+        צלם קבלה והאפליקציה תזהה את כל הפרטים אוטומטית
       </p>
 
       <div className="flex flex-col gap-3 pt-4">
@@ -51,7 +51,7 @@ export default function FirstReceiptPage() {
           disabled={loading}
           className="w-full text-on-surface-variant py-2 text-sm font-medium hover:underline disabled:opacity-50"
         >
-          {loading ? "מסיים..." : "דלג לדאשבורד"}
+          {loading ? "מסיים..." : "אעשה את זה אחר כך"}
         </button>
       </div>
     </div>

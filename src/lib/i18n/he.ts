@@ -4,10 +4,10 @@ export const he = {
     tagline: "ניהול קבלות חכם",
   },
   nav: {
-    dashboard: "דאשבורד",
+    dashboard: "ראשי",
     scan: "סריקה",
-    review: "סקירה",
-    archive: "ארכיון",
+    review: "קבלות",
+    archive: "דוחות",
   },
   greeting: "שלום",
   dashboard: {
@@ -93,7 +93,7 @@ export const he = {
     error: "שגיאה",
     success: "הצלחה",
     retry: "נסה שוב",
-    offline: "אופליין - הנתונים יסתנכרנו כשתחזור לרשת",
+    offline: "אין חיבור לאינטרנט. הנתונים יסונכרנו אוטומטית כשתתחבר",
     noResults: "לא נמצאו תוצאות",
   },
 } as const;

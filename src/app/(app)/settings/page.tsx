@@ -23,7 +23,7 @@ export default async function SettingsPage() {
     {
       icon: "person",
       title: "פרופיל עסקי",
-      subtitle: settings?.business_name || "לא הוגדר",
+      subtitle: settings?.business_name || "עדיין לא הוגדר",
       href: "/settings",
     },
     {
@@ -35,7 +35,7 @@ export default async function SettingsPage() {
     {
       icon: "cloud",
       title: "Google Drive",
-      subtitle: driveConnection?.is_active ? `מחובר: ${driveConnection.google_email}` : "לא מחובר",
+      subtitle: driveConnection?.is_active ? `מחובר: ${driveConnection.google_email}` : "עדיין לא מחובר",
       href: "/settings/gdrive",
     },
   ];
@@ -69,7 +69,7 @@ export default async function SettingsPage() {
             type="submit"
             className="w-full border-2 border-error text-error py-3 rounded-full font-bold hover:bg-error-container transition-all active:scale-[0.98]"
           >
-            התנתקות
+            התנתק מהחשבון
           </button>
         </form>
       </div>

@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setError("אימייל או סיסמה שגויים");
+      setError("הפרטים לא התאימו. בדוק את האימייל והסיסמה ונסה שוב.");
       setLoading(false);
       return;
     }
@@ -39,7 +39,7 @@ export default function LoginPage() {
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-black text-primary tracking-tight mb-2">InvoiceSnap</h1>
-        <p className="text-on-surface-variant">התחבר לחשבון שלך</p>
+        <p className="text-on-surface-variant">טוב לראות אותך שוב!</p>
       </div>
 
       <button
@@ -52,7 +52,7 @@ export default function LoginPage() {
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        התחבר עם Google
+        המשך עם Google
       </button>
 
       <div className="flex items-center gap-4">
@@ -71,7 +71,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="your@email.com"
+            placeholder="name@example.com"
             dir="ltr"
           />
         </div>
@@ -84,9 +84,10 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="••••••••"
+            placeholder="לפחות 6 תווים"
             dir="ltr"
           />
+          <p className="text-xs text-on-surface-variant mt-1">לפחות 6 תווים, אותיות ומספרים</p>
         </div>
 
         {error && <p className="text-sm text-error font-medium text-center">{error}</p>}
@@ -96,14 +97,14 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full bg-primary text-on-primary py-3 rounded-full font-bold text-base hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50"
         >
-          {loading ? "מתחבר..." : "התחברות"}
+          {loading ? "מתחבר..." : "כנס לחשבון שלך"}
         </button>
       </form>
 
       <p className="text-center text-sm text-on-surface-variant">
         אין לך חשבון?{" "}
         <Link href="/signup" className="text-primary font-bold hover:underline">
-          הרשם עכשיו
+          צור חשבון חדש
         </Link>
       </p>
     </div>

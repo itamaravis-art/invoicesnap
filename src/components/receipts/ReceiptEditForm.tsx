@@ -91,12 +91,12 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-on-surface flex items-center gap-2">
           <MaterialIcon icon="edit" size={20} />
-          עריכת קבלה
+          עריכת פרטי הקבלה
         </h3>
         {saved && (
           <span className="text-xs text-secondary font-bold flex items-center gap-1">
             <MaterialIcon icon="check_circle" size={16} />
-            נשמר
+            השינויים נשמרו בהצלחה
           </span>
         )}
       </div>
@@ -123,7 +123,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
             onChange={(e) => handleAmountChange(parseFloat(e.target.value) || 0)}
             className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             dir="ltr"
-            placeholder="0.00"
+            placeholder="0.00 ₪"
           />
         </div>
 
@@ -149,7 +149,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
             onChange={(e) => handleChange("vat_amount", parseFloat(e.target.value) || 0)}
             className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             dir="ltr"
-            placeholder="0.00"
+            placeholder="0.00 ₪"
           />
         </div>
 
@@ -163,7 +163,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
             onChange={(e) => handleChange("amount_before_vat", parseFloat(e.target.value) || 0)}
             className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             dir="ltr"
-            placeholder="0.00"
+            placeholder="0.00 ₪"
           />
         </div>
 
@@ -175,7 +175,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
             onChange={(e) => handleChange("receipt_number", e.target.value)}
             className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             dir="ltr"
-            placeholder="מספר"
+            placeholder="לדוגמה: 1234"
           />
         </div>
 
@@ -187,7 +187,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
             onChange={(e) => handleChange("payment_method", e.target.value || null)}
             className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">בחר</option>
+            <option value="">בחר אמצעי תשלום</option>
             {Object.entries(PAYMENT_METHODS).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
@@ -238,7 +238,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
             onChange={(e) => handleChange("notes", e.target.value)}
             rows={2}
             className="w-full px-3 py-2.5 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            placeholder="הוסף הערה..."
+            placeholder="הוסף הערה (לא חובה)"
           />
         </div>
       </div>
@@ -248,7 +248,7 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
         disabled={saving}
         className="w-full bg-primary text-on-primary py-3 rounded-full font-bold hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50"
       >
-        {saving ? "שומר..." : "שמור שינויים"}
+        {saving ? "שומר שינויים..." : "שמור את השינויים"}
       </button>
     </div>
   );

@@ -57,8 +57,8 @@ export default async function ReportsPage() {
       ) : (
         <div className="bg-surface-container-lowest rounded-3xl p-12 text-center">
           <span className="material-symbols-outlined text-5xl text-outline mb-3 block">assessment</span>
-          <h3 className="text-lg font-bold text-on-surface mb-1">אין דוחות עדיין</h3>
-          <p className="text-sm text-on-surface-variant">דוחות חודשיים ייווצרו אוטומטית כשתוסיף קבלות</p>
+          <h3 className="text-lg font-bold text-on-surface mb-1">עדיין אין דוחות</h3>
+          <p className="text-sm text-on-surface-variant">כשתוסיף קבלות, ניצור לך דוחות חודשיים אוטומטית</p>
         </div>
       )}
     </section>

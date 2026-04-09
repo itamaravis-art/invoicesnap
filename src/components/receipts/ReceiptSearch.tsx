@@ -60,12 +60,13 @@ export function ReceiptSearch({ onFilterChange }: ReceiptSearchProps) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="חיפוש לפי ספק או הערה..."
+            placeholder="חפש לפי שם ספק, סכום או הערה..."
             className="w-full ps-10 pe-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
           />
         </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
+          title="סינון מתקדם"
           className={`p-3 rounded-xl border transition-all ${
             showFilters || categoryId || month
               ? "bg-primary text-on-primary border-primary"
@@ -89,7 +90,7 @@ export function ReceiptSearch({ onFilterChange }: ReceiptSearchProps) {
                   !categoryId ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface-variant"
                 }`}
               >
-                הכל
+                כל הקטגוריות
               </button>
               {categories.map((cat) => (
                 <button
@@ -113,7 +114,7 @@ export function ReceiptSearch({ onFilterChange }: ReceiptSearchProps) {
               onChange={(e) => setMonth(e.target.value || null)}
               className="w-full px-3 py-2 rounded-xl bg-surface-container border border-outline-variant text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="">כל התקופה</option>
+              <option value="">כל התקופות</option>
               {months.map((m) => (
                 <option key={m.value} value={m.value}>{m.label}</option>
               ))}

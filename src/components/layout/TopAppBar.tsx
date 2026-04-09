@@ -31,6 +31,7 @@ export function TopAppBar({ userName = "משתמש", avatarUrl }: TopAppBarProps
         </h1>
         <Link
           href="/settings"
+          title="הגדרות"
           className="text-blue-700 dark:text-blue-400 active:scale-95 transition-transform duration-150 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-2 rounded-xl"
         >
           <MaterialIcon icon="settings" />

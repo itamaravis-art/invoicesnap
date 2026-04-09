@@ -64,7 +64,7 @@ export default function NewReceiptPage() {
       setUploading(false);
       router.push(`/receipts/${receipt.id}`);
     } catch (err) {
-      setError("שגיאה בהעלאת הקבלה. נסה שוב.");
+      setError("לא הצלחנו להעלות את הקבלה. בדוק את החיבור ונסה שוב.");
       setUploading(false);
       console.error(err);
     }
@@ -82,7 +82,7 @@ export default function NewReceiptPage() {
             mode === "single" ? "bg-primary text-on-primary" : "text-on-surface-variant"
           }`}
         >
-          צילום בודד
+          סרוק קבלה
         </button>
         <button
           onClick={() => setMode("bulk")}
@@ -106,8 +106,8 @@ export default function NewReceiptPage() {
                   <span className="material-symbols-outlined text-4xl text-on-primary-container">photo_camera</span>
                 </div>
                 <div className="text-center">
-                  <p className="font-bold text-on-surface">לחץ לצילום או בחירת תמונה</p>
-                  <p className="text-sm text-on-surface-variant mt-1">JPG, PNG, HEIC עד 10MB</p>
+                  <p className="font-bold text-on-surface">צלם או בחר תמונה מהגלריה</p>
+                  <p className="text-sm text-on-surface-variant mt-1">תמונות JPG, PNG או HEIC עד 10MB</p>
                 </div>
               </button>
               <input
@@ -127,7 +127,7 @@ export default function NewReceiptPage() {
               {uploading && (
                 <div className="flex items-center gap-3 text-primary">
                   <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span className="font-bold">מעבד את הקבלה...</span>
+                  <span className="font-bold">סורק ומזהה את הקבלה...</span>
                 </div>
               )}
             </div>

@@ -83,7 +83,7 @@ export default function GDriveSettingsPage() {
           </div>
           <div className="flex-1">
             <p className="font-bold text-on-surface">
-              {status?.connected ? "מחובר" : "לא מחובר"}
+              {status?.connected ? "מחובר ופעיל" : "עדיין לא מחובר"}
             </p>
             {status?.email && (
               <p className="text-sm text-on-surface-variant">{status.email}</p>
@@ -130,7 +130,7 @@ export default function GDriveSettingsPage() {
               onClick={handleDisconnect}
               className="w-full border-2 border-error text-error py-2.5 rounded-full text-sm font-bold hover:bg-error-container transition-all active:scale-[0.98]"
             >
-              נתק Google Drive
+              נתק את Google Drive
             </button>
           </>
         ) : (
@@ -144,7 +144,7 @@ export default function GDriveSettingsPage() {
             >
               <span className="flex items-center justify-center gap-2">
                 <span className="material-symbols-outlined">cloud_upload</span>
-                חבר Google Drive
+                חבר את Google Drive לגיבוי
               </span>
             </a>
           </>
@@ -156,7 +156,7 @@ export default function GDriveSettingsPage() {
         <ul className="space-y-2 text-sm text-on-surface-variant">
           <li className="flex items-start gap-2">
             <span className="material-symbols-outlined text-primary text-lg mt-0.5">folder</span>
-            <span>נוצרת תיקיית InvoiceSnap בדרייב שלך</span>
+            <span>ניצור תיקיית InvoiceSnap ב-Drive שלך</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="material-symbols-outlined text-primary text-lg mt-0.5">calendar_month</span>
@@ -164,11 +164,11 @@ export default function GDriveSettingsPage() {
           </li>
           <li className="flex items-start gap-2">
             <span className="material-symbols-outlined text-primary text-lg mt-0.5">sync</span>
-            <span>הסנכרון מתבצע אוטומטית אחרי כל סריקה</span>
+            <span>כל קבלה חדשה תסונכרן אוטומטית</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="material-symbols-outlined text-primary text-lg mt-0.5">share</span>
-            <span>ניתן לשתף תיקייה חודשית עם רואה החשבון</span>
+            <span>תוכל לשתף תיקייה חודשית עם רואה החשבון</span>
           </li>
         </ul>
       </div>

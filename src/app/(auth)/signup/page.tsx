@@ -31,7 +31,7 @@ export default function SignupPage() {
     });
 
     if (error) {
-      setError("שגיאה ביצירת החשבון. נסה שוב.");
+      setError("לא הצלחנו ליצור את החשבון. ייתכן שהאימייל כבר בשימוש.");
       setLoading(false);
       return;
     }
@@ -52,7 +52,7 @@ export default function SignupPage() {
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-black text-primary tracking-tight mb-2">InvoiceSnap</h1>
-        <p className="text-on-surface-variant">צור חשבון חדש</p>
+        <p className="text-on-surface-variant">בואו נסדר לך את הקבלות</p>
       </div>
 
       <button
@@ -65,7 +65,7 @@ export default function SignupPage() {
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        הרשם עם Google
+        המשך עם Google
       </button>
 
       <div className="flex items-center gap-4">
@@ -84,7 +84,7 @@ export default function SignupPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="your@email.com"
+            placeholder="name@example.com"
             dir="ltr"
           />
         </div>
@@ -101,6 +101,7 @@ export default function SignupPage() {
             placeholder="לפחות 6 תווים"
             dir="ltr"
           />
+          <p className="text-xs text-on-surface-variant mt-1">לפחות 6 תווים, אותיות ומספרים</p>
         </div>
 
         {error && <p className="text-sm text-error font-medium text-center">{error}</p>}
@@ -110,14 +111,14 @@ export default function SignupPage() {
           disabled={loading}
           className="w-full bg-primary text-on-primary py-3 rounded-full font-bold text-base hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50"
         >
-          {loading ? "יוצר חשבון..." : "הרשמה"}
+          {loading ? "יוצר חשבון..." : "צור חשבון בחינם"}
         </button>
       </form>
 
       <p className="text-center text-sm text-on-surface-variant">
         יש לך חשבון?{" "}
         <Link href="/login" className="text-primary font-bold hover:underline">
-          התחבר
+          יש לי חשבון
         </Link>
       </p>
     </div>

@@ -52,7 +52,7 @@ export default function AccountantsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("בטוח שאתה רוצה למחוק?")) return;
+    if (!confirm("למחוק את רואה החשבון? לא ניתן לבטל.")) return;
     await fetch(`/api/accountants/${id}`, { method: "DELETE" });
     await fetchAccountants();
   }
@@ -72,22 +72,22 @@ export default function AccountantsPage() {
           className="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1 active:scale-95 transition-all"
         >
           <span className="material-symbols-outlined text-lg">add</span>
-          הוסף
+          הוסף רואה חשבון
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={handleAdd} className="bg-surface-container-lowest rounded-3xl p-6 space-y-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-bold text-on-surface-variant">שם</label>
+            <label className="text-sm font-bold text-on-surface-variant">שם מלא</label>
             <input
               value={name} onChange={(e) => setName(e.target.value)} required
               className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="שם רואה החשבון"
+              placeholder="לדוגמה: ישראל כהן"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-bold text-on-surface-variant">אימייל</label>
+            <label className="text-sm font-bold text-on-surface-variant">כתובת אימייל</label>
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -105,7 +105,7 @@ export default function AccountantsPage() {
           <div className="flex gap-3">
             <button type="submit" disabled={saving}
               className="flex-1 bg-primary text-on-primary py-2.5 rounded-full font-bold disabled:opacity-50">
-              {saving ? "שומר..." : "שמור"}
+              {saving ? "שומר..." : "שמור פרטים"}
             </button>
             <button type="button" onClick={() => setShowForm(false)}
               className="px-6 py-2.5 rounded-full font-bold text-on-surface-variant border border-outline-variant">
@@ -146,8 +146,8 @@ export default function AccountantsPage() {
       ) : (
         <div className="bg-surface-container-lowest rounded-3xl p-8 text-center">
           <span className="material-symbols-outlined text-4xl text-outline mb-2 block">contact_mail</span>
-          <p className="text-on-surface-variant">אין רואי חשבון</p>
-          <p className="text-sm text-outline mt-1">הוסף את רואה החשבון שלך כדי לשלוח קבלות בקלות</p>
+          <p className="text-on-surface-variant">עדיין לא הוספת רואה חשבון</p>
+          <p className="text-sm text-outline mt-1">הוסף את פרטי רואה החשבון כדי לשלוח קבלות בקלות</p>
         </div>
       )}
     </section>

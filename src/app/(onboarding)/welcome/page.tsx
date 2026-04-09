@@ -38,8 +38,8 @@ export default function WelcomePage() {
         <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mx-auto mb-4">
           <span className="material-symbols-outlined text-3xl text-on-primary-container">waving_hand</span>
         </div>
-        <h2 className="text-2xl font-black text-on-surface mb-2">ברוך הבא!</h2>
-        <p className="text-on-surface-variant">בוא נגדיר את העסק שלך</p>
+        <h2 className="text-2xl font-black text-on-surface mb-2">ברוכים הבאים ל-InvoiceSnap!</h2>
+        <p className="text-on-surface-variant">בואו נגדיר את העסק שלך כדי להכין דוחות מדויקים</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,6 +52,7 @@ export default function WelcomePage() {
             className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="לדוגמה: סטודיו דיגיטל בע״מ"
           />
+          <p className="text-xs text-on-surface-variant mt-1">מופיע בדוחות שנשלחים לרואה החשבון</p>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -64,6 +65,7 @@ export default function WelcomePage() {
             placeholder="מספר עוסק מורשה"
             dir="ltr"
           />
+          <p className="text-xs text-on-surface-variant mt-1">מספר עוסק מורשה (לא חובה)</p>
         </div>
 
         <button
@@ -71,7 +73,7 @@ export default function WelcomePage() {
           disabled={loading}
           className="w-full bg-primary text-on-primary py-3 rounded-full font-bold hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50"
         >
-          {loading ? "שומר..." : "הבא"}
+          {loading ? "שומר..." : "שמור והמשך"}
         </button>
 
         <button
@@ -79,7 +81,7 @@ export default function WelcomePage() {
           onClick={() => router.push("/setup-accountant")}
           className="w-full text-on-surface-variant py-2 text-sm font-medium hover:underline"
         >
-          דלג
+          דלג בינתיים
         </button>
       </form>
     </div>

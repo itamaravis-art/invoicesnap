@@ -96,7 +96,7 @@ export default async function DashboardPage() {
           )}
           {receiptCount === 0 && (
             <p className="mt-4 text-sm text-on-surface-variant">
-              עדיין אין קבלות החודש. לחץ על כפתור המצלמה כדי להתחיל!
+              עדיין אין קבלות החודש. סרוק קבלה כדי להתחיל!
             </p>
           )}
         </div>
@@ -173,7 +173,7 @@ export default async function DashboardPage() {
       <section className="space-y-4">
         <div className="flex justify-between items-center px-2">
           <h3 className="text-lg font-bold text-on-surface">הוצאות אחרונות</h3>
-          <a href="/receipts" className="text-primary text-sm font-bold">ראה הכל</a>
+          <a href="/receipts" className="text-primary text-sm font-bold">כל הקבלות</a>
         </div>
 
         {recentReceipts && recentReceipts.length > 0 ? (
@@ -189,7 +189,7 @@ export default async function DashboardPage() {
                     <span className="material-symbols-outlined">{getReceiptIcon(receipt as Record<string, unknown>)}</span>
                   </div>
                   <div>
-                    <p className="font-bold text-on-surface">{receipt.vendor_name || "ספק לא ידוע"}</p>
+                    <p className="font-bold text-on-surface">{receipt.vendor_name || "שם ספק לא זוהה"}</p>
                     <p className="text-xs text-on-surface-variant">
                       {receipt.receipt_date
                         ? new Date(receipt.receipt_date).toLocaleDateString("he-IL", { day: "numeric", month: "short" })
@@ -214,7 +214,7 @@ export default async function DashboardPage() {
                   }`}>
                     {receipt.ocr_status === "completed" ? "אושר" :
                      receipt.ocr_status === "failed" ? "נכשל" :
-                     receipt.ocr_status === "manual" ? "ידני" : "בבדיקה"}
+                     receipt.ocr_status === "manual" ? "ידני" : "בעיבוד"}
                   </span>
                 </div>
               </a>

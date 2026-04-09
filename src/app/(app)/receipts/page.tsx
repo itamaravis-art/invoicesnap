@@ -25,7 +25,7 @@ export default async function ReceiptsPage() {
           className="bg-primary text-on-primary px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1 active:scale-95 transition-all"
         >
           <span className="material-symbols-outlined text-lg">add</span>
-          חדשה
+          סרוק קבלה
         </Link>
       </div>
 
@@ -42,11 +42,11 @@ export default async function ReceiptsPage() {
                   <span className="material-symbols-outlined">receipt_long</span>
                 </div>
                 <div>
-                  <p className="font-bold text-on-surface">{receipt.vendor_name || "ספק לא ידוע"}</p>
+                  <p className="font-bold text-on-surface">{receipt.vendor_name || "שם ספק לא זוהה"}</p>
                   <p className="text-xs text-on-surface-variant">
                     {receipt.receipt_date
                       ? new Date(receipt.receipt_date).toLocaleDateString("he-IL")
-                      : "ללא תאריך"}
+                      : "תאריך לא זוהה"}
                     {(receipt.category as Record<string, string> | null)?.name_he && (
                       <> &bull; {(receipt.category as Record<string, string>).name_he}</>
                     )}
@@ -63,7 +63,7 @@ export default async function ReceiptsPage() {
                   "bg-tertiary-container text-on-tertiary-container"
                 }`}>
                   {receipt.ocr_status === "completed" ? "אושר" :
-                   receipt.ocr_status === "failed" ? "נכשל" : "בבדיקה"}
+                   receipt.ocr_status === "failed" ? "נכשל" : "בעיבוד"}
                 </span>
               </div>
             </Link>
@@ -72,8 +72,8 @@ export default async function ReceiptsPage() {
       ) : (
         <div className="bg-surface-container-lowest rounded-3xl p-12 text-center">
           <span className="material-symbols-outlined text-5xl text-outline mb-3 block">receipt_long</span>
-          <h3 className="text-lg font-bold text-on-surface mb-1">אין קבלות עדיין</h3>
-          <p className="text-sm text-on-surface-variant mb-6">סרוק את הקבלה הראשונה שלך כדי להתחיל</p>
+          <h3 className="text-lg font-bold text-on-surface mb-1">עדיין אין קבלות</h3>
+          <p className="text-sm text-on-surface-variant mb-6">סרוק קבלה כדי להתחיל לנהל את ההוצאות שלך</p>
           <Link
             href="/receipts/new"
             className="bg-primary text-on-primary px-6 py-3 rounded-full font-bold inline-flex items-center gap-2"

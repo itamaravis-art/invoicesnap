@@ -16,6 +16,7 @@ export default async function ExportPage() {
   return (
     <section className="space-y-6">
       <h2 className="text-2xl font-black text-on-surface">ייצוא לרואה חשבון</h2>
+      <p className="text-sm text-on-surface-variant -mt-3">בחר את דרך השליחה המועדפת</p>
 
       <div className="space-y-3">
         {months.map(({ year, month }) => (
@@ -25,10 +26,10 @@ export default async function ExportPage() {
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: "mail", label: "שלח במייל", method: "email" },
-                { icon: "folder_zip", label: "הורד ZIP", method: "zip" },
-                { icon: "cloud_upload", label: "שתף ב-Drive", method: "gdrive" },
-                { icon: "chat", label: "WhatsApp", method: "whatsapp" },
+                { icon: "mail", label: "שלח בדוא״ל לרואה חשבון", method: "email" },
+                { icon: "folder_zip", label: "הורד קובץ ZIP", method: "zip" },
+                { icon: "cloud_upload", label: "שתף ב-Google Drive", method: "gdrive" },
+                { icon: "chat", label: "שלח ב-WhatsApp", method: "whatsapp" },
               ].map((action) => (
                 <button
                   key={action.method}

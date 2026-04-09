@@ -38,8 +38,8 @@ export default function SetupAccountantPage() {
         <div className="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mx-auto mb-4">
           <span className="material-symbols-outlined text-3xl text-on-secondary-container">contact_mail</span>
         </div>
-        <h2 className="text-2xl font-black text-on-surface mb-2">רואה החשבון שלך</h2>
-        <p className="text-on-surface-variant">הוסף פרטים כדי לשלוח קבלות בקלות</p>
+        <h2 className="text-2xl font-black text-on-surface mb-2">רואה החשבון שלך (לא חובה)</h2>
+        <p className="text-on-surface-variant">הוסף את פרטי רואה החשבון כדי לשלוח קבלות בקליק אחד</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -62,7 +62,7 @@ export default function SetupAccountantPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="accountant@email.com"
+            placeholder="israel@accounting.co.il"
             dir="ltr"
           />
         </div>
@@ -85,7 +85,7 @@ export default function SetupAccountantPage() {
           disabled={loading}
           className="w-full bg-primary text-on-primary py-3 rounded-full font-bold hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50"
         >
-          {loading ? "שומר..." : "הבא"}
+          {loading ? "שומר..." : "שמור והמשך"}
         </button>
 
         <button
@@ -93,7 +93,7 @@ export default function SetupAccountantPage() {
           onClick={() => router.push("/first-receipt")}
           className="w-full text-on-surface-variant py-2 text-sm font-medium hover:underline"
         >
-          דלג
+          אוסיף מאוחר יותר
         </button>
       </form>
     </div>
