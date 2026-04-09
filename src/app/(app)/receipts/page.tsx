@@ -29,6 +29,17 @@ export default async function ReceiptsPage() {
         </Link>
       </div>
 
+      {/* Quick export button */}
+      {receipts && receipts.length > 0 && (
+        <Link
+          href={`/export?year=${new Date().getFullYear()}&month=${new Date().getMonth() + 1}`}
+          className="w-full bg-primary text-on-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-lg">email</span>
+          שלח את כל הקבלות של החודש למייל
+        </Link>
+      )}
+
       {receipts && receipts.length > 0 ? (
         <div className="grid grid-cols-1 gap-3">
           {receipts.map((receipt) => (

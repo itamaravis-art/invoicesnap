@@ -50,15 +50,25 @@ export default async function ReportsPage() {
                   </p>
                 </div>
               </div>
-              <div className="text-start">
-                <p className="font-black text-on-surface">{formatCurrency(r.total_amount)}</p>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                  r.status === "sent" ? "bg-secondary-container text-on-secondary-container" :
-                  r.status === "closed" ? "bg-tertiary-container text-on-tertiary-container" :
-                  "bg-surface-container-high text-on-surface-variant"
-                }`}>
-                  {r.status === "sent" ? "נשלח" : r.status === "closed" ? "סגור" : "פתוח"}
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="text-start">
+                  <p className="font-black text-on-surface">{formatCurrency(r.total_amount)}</p>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    r.status === "sent" ? "bg-secondary-container text-on-secondary-container" :
+                    r.status === "closed" ? "bg-tertiary-container text-on-tertiary-container" :
+                    "bg-surface-container-high text-on-surface-variant"
+                  }`}>
+                    {r.status === "sent" ? "נשלח" : r.status === "closed" ? "סגור" : "פתוח"}
+                  </span>
+                </div>
+                <Link
+                  href={`/export?year=${r.year}&month=${r.month}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 active:scale-90 transition-all"
+                  title="שלח למייל"
+                >
+                  <span className="material-symbols-outlined text-lg">send</span>
+                </Link>
               </div>
             </Link>
           ))}
