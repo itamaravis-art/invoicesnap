@@ -19,9 +19,13 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
 
   if (!receipt) notFound();
 
-  const imageUrl = receipt.image_storage_path
-    ? supabase.storage.from("receipts").getPublicUrl(receipt.image_storage_path).data.publicUrl
-    : null;
+  let imageUrl: string | null = null;
+  if (receipt.image_storage_path) {
+    const { data: signedData } = await supabase.storage
+      .from("receipts")
+      .createSignedUrl(receipt.image_storage_path, 3600);
+    imageUrl = signedData?.signedUrl ?? null;
+  }
 
   const PAYMENT_LABELS: Record<string, string> = {
     cash: "מזומן", credit: "אשראי", transfer: "העברה",
