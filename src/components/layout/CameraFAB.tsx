@@ -10,7 +10,7 @@ export function CameraFAB() {
         href="/receipts/new"
         title="סרוק קבלה חדשה"
         aria-label="סרוק קבלה חדשה"
-        className="bg-primary text-on-primary w-16 h-16 rounded-full flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all shutter-ring group animate-pulse-glow"
+        className="bg-primary text-on-primary w-16 h-16 rounded-full flex items-center justify-center shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all shutter-ring group animate-pulse-glow"
       >
         <MaterialIcon
           icon="photo_camera"

@@ -3,6 +3,7 @@ import { formatCurrency, formatDate, getShaamStatus } from "@/lib/utils";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ReceiptEditForm } from "@/components/receipts/ReceiptEditForm";
+import { DeleteReceiptButton } from "@/components/receipts/DeleteReceiptButton";
 
 export default async function ReceiptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -182,6 +183,8 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
         allocation_number: receipt.allocation_number ?? null,
         is_vat_reclaimable: receipt.is_vat_reclaimable ?? true,
       }} />
+
+      <DeleteReceiptButton receiptId={receipt.id} />
     </section>
   );
 }

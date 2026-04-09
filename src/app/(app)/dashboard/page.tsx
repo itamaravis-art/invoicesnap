@@ -68,11 +68,11 @@ export default async function DashboardPage() {
       {/* Summary Bento Grid */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Monthly Total Card */}
-        <div className="md:col-span-2 bg-surface-container-lowest rounded-3xl p-8 transition-transform hover:scale-[1.01] flex flex-col justify-between">
+        <div className="md:col-span-2 bg-surface-container-lowest rounded-3xl p-8 transition-transform hover:scale-[1.01] card-hover flex flex-col justify-between">
           <div>
-            <h2 className="text-on-surface-variant text-sm mb-2 font-medium">סיכום חודשי</h2>
+            <h2 className="text-on-surface-variant text-sm mb-2 font-black tracking-tight">סיכום חודשי</h2>
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-5xl font-black tracking-tighter text-on-surface">
+              <span className="text-5xl font-black tracking-tighter text-on-surface text-gradient">
                 {formatCurrency(totalSpend)}
               </span>
               {receiptCount > 0 && (
@@ -102,7 +102,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Budget Card */}
-        <div className="bg-primary-container text-on-primary-container rounded-3xl p-8 flex flex-col justify-between">
+        <div className="bg-primary-container text-on-primary-container rounded-3xl p-8 card-hover flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
             <span className="text-xs font-bold uppercase tracking-widest opacity-80">סטטוס תקציב</span>
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Chart Section */}
-      <section className="bg-surface-container-lowest rounded-3xl p-8">
+      <section className="bg-surface-container-lowest rounded-3xl p-8 card-hover">
         <div className="flex justify-between items-center mb-10">
           <h3 className="text-lg font-bold text-on-surface">מגמת הוצאות</h3>
           <div className="flex gap-2">

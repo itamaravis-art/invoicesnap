@@ -1,47 +1,210 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { getHebrewMonthName } from "@/lib/utils";
+"use client";
 
-export default async function ExportPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
 
-  const now = new Date();
-  const months = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    return { year: d.getFullYear(), month: d.getMonth() + 1 };
-  });
+interface Accountant {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+}
+
+export default function ExportPage() {
+  const searchParams = useSearchParams();
+  const [year, setYear] = useState(parseInt(searchParams.get("year") || String(new Date().getFullYear())));
+  const [month, setMonth] = useState(parseInt(searchParams.get("month") || String(new Date().getMonth() + 1)));
+  const [accountants, setAccountants] = useState<Accountant[]>([]);
+  const [selectedAccountant, setSelectedAccountant] = useState<string>("");
+  const [sending, setSending] = useState("");
+  const [result, setResult] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const supabase = createClient();
+
+  const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+
+  const fetchAccountants = useCallback(async () => {
+    const res = await fetch("/api/accountants");
+    if (res.ok) {
+      const data = await res.json();
+      setAccountants(data.accountants || []);
+      if (data.accountants?.length > 0) setSelectedAccountant(data.accountants[0].id);
+    }
+  }, []);
+
+  useEffect(() => { fetchAccountants(); }, [fetchAccountants]);
+
+  function showResult(type: "success" | "error", msg: string) {
+    setResult({ type, msg });
+    setTimeout(() => setResult(null), 4000);
+  }
+
+  async function sendEmail() {
+    const acct = accountants.find(a => a.id === selectedAccountant);
+    if (!acct?.email) { showResult("error", "לרואה החשבון אין כתובת אימייל"); return; }
+    setSending("email");
+    try {
+      const res = await fetch("/api/export/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, month, accountant_id: selectedAccountant }),
+      });
+      if (res.ok) showResult("success", `הדוח נשלח בהצלחה ל-${acct.email}`);
+      else { const d = await res.json(); showResult("error", d.error || "שגיאה בשליחה"); }
+    } catch { showResult("error", "שגיאה בשליחה. בדוק את החיבור."); }
+    finally { setSending(""); }
+  }
+
+  async function downloadZip() {
+    setSending("zip");
+    try {
+      const res = await fetch("/api/export/zip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, month }),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoicesnap_${year}_${String(month).padStart(2, "0")}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showResult("success", "הקובץ הורד בהצלחה");
+      } else showResult("error", "שגיאה בהורדה");
+    } catch { showResult("error", "שגיאה בהורדה"); }
+    finally { setSending(""); }
+  }
+
+  async function sendWhatsApp() {
+    const acct = accountants.find(a => a.id === selectedAccountant);
+    if (!acct?.phone) { showResult("error", "לרואה החשבון אין מספר טלפון"); return; }
+    setSending("whatsapp");
+    try {
+      const res = await fetch("/api/export/whatsapp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, month, accountant_id: selectedAccountant }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        window.open(data.url, "_blank");
+        showResult("success", "נפתח WhatsApp לשליחה");
+      } else showResult("error", "שגיאה ביצירת הקישור");
+    } catch { showResult("error", "שגיאה"); }
+    finally { setSending(""); }
+  }
+
+  async function shareDrive() {
+    const acct = accountants.find(a => a.id === selectedAccountant);
+    if (!acct?.email) { showResult("error", "לרואה החשבון אין כתובת אימייל"); return; }
+    setSending("drive");
+    try {
+      const res = await fetch("/api/export/gdrive-share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, month, accountant_email: acct.email }),
+      });
+      if (res.ok) showResult("success", `התיקייה שותפה עם ${acct.email}`);
+      else showResult("error", "שגיאה בשיתוף. ודא שחיברת Google Drive.");
+    } catch { showResult("error", "שגיאה בשיתוף"); }
+    finally { setSending(""); }
+  }
 
   return (
-    <section className="space-y-6">
-      <h2 className="text-2xl font-black text-on-surface">ייצוא לרואה חשבון</h2>
-      <p className="text-sm text-on-surface-variant -mt-3">בחר את דרך השליחה המועדפת</p>
+    <section className="space-y-4">
+      <h2 className="text-2xl font-black text-on-surface">שליחה לרואה חשבון</h2>
+      <p className="text-sm text-on-surface-variant">בחר תקופה ודרך שליחה</p>
 
-      <div className="space-y-3">
-        {months.map(({ year, month }) => (
-          <div key={`${year}-${month}`} className="bg-surface-container-lowest rounded-3xl p-5">
-            <h3 className="font-bold text-on-surface mb-4">
-              {getHebrewMonthName(month)} {year}
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { icon: "mail", label: "שלח בדוא״ל לרואה חשבון", method: "email" },
-                { icon: "folder_zip", label: "הורד קובץ ZIP", method: "zip" },
-                { icon: "cloud_upload", label: "שתף ב-Google Drive", method: "gdrive" },
-                { icon: "chat", label: "שלח ב-WhatsApp", method: "whatsapp" },
-              ].map((action) => (
-                <button
-                  key={action.method}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-all text-sm font-bold text-on-surface active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-lg text-primary">{action.icon}</span>
-                  {action.label}
-                </button>
-              ))}
-            </div>
+      {/* Result toast */}
+      {result && (
+        <div className={`p-4 rounded-2xl font-bold text-sm flex items-center gap-2 animate-slide-up ${
+          result.type === "success" ? "bg-secondary-container text-on-secondary-container" : "bg-error-container text-on-error-container"
+        }`}>
+          <span className="material-symbols-outlined text-lg">
+            {result.type === "success" ? "check_circle" : "error"}
+          </span>
+          {result.msg}
+        </div>
+      )}
+
+      {/* Period selector */}
+      <div className="bg-surface-container-lowest rounded-3xl p-4 space-y-3">
+        <h3 className="font-bold text-on-surface text-sm">תקופה</h3>
+        <div className="flex gap-2">
+          <select
+            value={month}
+            onChange={(e) => setMonth(parseInt(e.target.value))}
+            className="flex-1 px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+          >
+            {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+          </select>
+          <select
+            value={year}
+            onChange={(e) => setYear(parseInt(e.target.value))}
+            className="px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+          >
+            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Accountant selector */}
+      <div className="bg-surface-container-lowest rounded-3xl p-4 space-y-3">
+        <h3 className="font-bold text-on-surface text-sm">רואה חשבון</h3>
+        {accountants.length > 0 ? (
+          <select
+            value={selectedAccountant}
+            onChange={(e) => setSelectedAccountant(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+          >
+            {accountants.map(a => (
+              <option key={a.id} value={a.id}>{a.name} {a.email ? `(${a.email})` : ""}</option>
+            ))}
+          </select>
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-sm text-on-surface-variant mb-2">עדיין לא הוספת רואה חשבון</p>
+            <a href="/settings/accountants" className="text-primary font-bold text-sm">הוסף רואה חשבון</a>
           </div>
-        ))}
+        )}
+      </div>
+
+      {/* Export actions */}
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={sendEmail}
+          disabled={sending !== "" || !selectedAccountant}
+          className="bg-primary text-on-primary p-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-2xl">email</span>
+          {sending === "email" ? "שולח..." : "שלח בדוא״ל"}
+        </button>
+        <button
+          onClick={downloadZip}
+          disabled={sending !== ""}
+          className="bg-surface-container-lowest border border-outline-variant p-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-2xl text-primary">folder_zip</span>
+          {sending === "zip" ? "מכין..." : "הורד ZIP"}
+        </button>
+        <button
+          onClick={sendWhatsApp}
+          disabled={sending !== "" || !selectedAccountant}
+          className="bg-surface-container-lowest border border-outline-variant p-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-2xl text-secondary">chat</span>
+          {sending === "whatsapp" ? "פותח..." : "שלח בוואטסאפ"}
+        </button>
+        <button
+          onClick={shareDrive}
+          disabled={sending !== "" || !selectedAccountant}
+          className="bg-surface-container-lowest border border-outline-variant p-4 rounded-2xl font-bold text-sm flex flex-col items-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-2xl text-tertiary">cloud_upload</span>
+          {sending === "drive" ? "משתף..." : "שתף ב-Drive"}
+        </button>
       </div>
     </section>
   );
