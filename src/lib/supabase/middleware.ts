@@ -44,10 +44,11 @@ export async function updateSession(request: NextRequest) {
     (route) => pathname === route || pathname.startsWith("/callback")
   );
   const isPublicApi = pathname === "/api/health";
+  const isStaticAsset = pathname === "/sw.js" || pathname === "/manifest.json" || pathname.startsWith("/icons/");
   const isOnboardingRoute = ["/welcome", "/setup-accountant", "/first-receipt"].includes(pathname);
 
   // Not logged in → redirect to login
-  if (!user && !isPublicRoute && !isPublicApi) {
+  if (!user && !isPublicRoute && !isPublicApi && !isStaticAsset) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
