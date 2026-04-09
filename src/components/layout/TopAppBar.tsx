@@ -10,7 +10,7 @@ interface TopAppBarProps {
 
 export function TopAppBar({ userName = "משתמש", avatarUrl }: TopAppBarProps) {
   return (
-    <header className="w-full top-0 sticky z-50 bg-slate-50 dark:bg-slate-900 shadow-none">
+    <header className="w-full top-0 sticky z-50 glass border-b border-outline-variant/20">
       <div className="flex justify-between items-center w-full px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">

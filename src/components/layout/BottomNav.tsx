@@ -28,12 +28,13 @@ export function BottomNav() {
               href={tab.href}
               className={`flex flex-col items-center justify-center px-4 py-1.5 active:scale-90 transition-all duration-200 ease-out text-[11px] font-medium ${
                 isActive
-                  ? "bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-100 rounded-xl"
+                  ? "bg-primary/10 text-primary rounded-xl shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-300"
               }`}
             >
               <MaterialIcon icon={tab.icon} filled={isActive} />
               <span>{tab.label}</span>
+              {isActive && <div className="w-1 h-1 rounded-full bg-primary mt-0.5" />}
             </Link>
           );
         })}
