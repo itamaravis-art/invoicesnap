@@ -60,6 +60,17 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Admin routes - require ADMIN_EMAIL match
+  if (pathname.startsWith("/admin")) {
+    const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+    if (!adminEmail || !user || user.email?.toLowerCase() !== adminEmail) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse; // Skip onboarding check for admin
+  }
+
   // Check onboarding for authenticated users on app routes
   if (user && !isPublicRoute && !isOnboardingRoute && !pathname.startsWith("/api")) {
     const { data: settings } = await supabase
