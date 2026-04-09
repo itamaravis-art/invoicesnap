@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import { ReceiptEditForm } from "@/components/receipts/ReceiptEditForm";
 
 export default async function ReceiptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -135,6 +136,22 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
           <span className="material-symbols-outlined text-secondary text-lg">check_circle</span>
         )}
       </div>
+
+      {/* Edit form */}
+      <ReceiptEditForm receipt={{
+        id: receipt.id,
+        vendor_name: receipt.vendor_name,
+        receipt_date: receipt.receipt_date,
+        total_amount: receipt.total_amount,
+        vat_amount: receipt.vat_amount,
+        amount_before_vat: receipt.amount_before_vat,
+        receipt_number: receipt.receipt_number,
+        payment_method: receipt.payment_method,
+        receipt_type: receipt.receipt_type,
+        category_id: receipt.category_id,
+        notes: receipt.notes,
+        tags: receipt.tags || [],
+      }} />
     </section>
   );
 }
