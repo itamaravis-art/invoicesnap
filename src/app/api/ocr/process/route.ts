@@ -112,13 +112,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ocrResult);
   } catch (error) {
-    console.error("OCR processing failed:", error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("OCR processing failed:", errorMsg, error);
 
     await supabase
       .from("receipts")
       .update({ ocr_status: "failed" })
       .eq("id", receipt_id);
 
-    return NextResponse.json({ error: "OCR processing failed" }, { status: 500 });
+    return NextResponse.json({ error: "OCR processing failed", details: errorMsg }, { status: 500 });
   }
 }

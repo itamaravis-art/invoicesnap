@@ -3,11 +3,13 @@ import { OCR_SYSTEM_PROMPT } from "./prompt";
 import { validateOcrResult } from "./validate";
 import type { OcrResult } from "@/types";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
-
 export async function processReceiptImage(imageBuffer: Buffer, mimeType: string): Promise<OcrResult> {
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GOOGLE_GEMINI_API_KEY not configured");
+
+  const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     generationConfig: {
       temperature: 0.1,
       maxOutputTokens: 4096,
