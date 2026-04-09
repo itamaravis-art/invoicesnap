@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ServiceWorkerRegistrar } from "@/components/pwa/ServiceWorkerRegistrar";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 export const metadata: Metadata = {
   title: "InvoiceSnap - ניהול קבלות חכם",
@@ -37,6 +39,8 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface text-on-surface min-h-full">
+        <ServiceWorkerRegistrar />
+        <InstallPrompt />
         {children}
       </body>
     </html>
