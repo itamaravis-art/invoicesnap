@@ -53,3 +53,9 @@ export function getHebrewMonthName(month: number): string {
   ];
   return months[month - 1] || "";
 }
+
+export function getShaamStatus(receipt: { total_amount: number | null; allocation_number: string | null; receipt_type: string }): "valid" | "missing" | "not_required" {
+  if (!receipt.total_amount || receipt.total_amount < 5000) return "not_required";
+  if (!["tax_invoice", "invoice"].includes(receipt.receipt_type)) return "not_required";
+  return receipt.allocation_number ? "valid" : "missing";
+}

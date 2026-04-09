@@ -2,8 +2,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  // CSRF protection for API routes
-  if (request.nextUrl.pathname.startsWith("/api/") && ["POST", "PATCH", "DELETE"].includes(request.method)) {
+  // Skip auth for public portal routes
+  if (request.nextUrl.pathname.startsWith("/portal/")) {
+    return NextResponse.next({ request });
+  }
+
+  // CSRF protection for API routes (exclude webhooks)
+  if (request.nextUrl.pathname.startsWith("/api/") && !request.nextUrl.pathname.startsWith("/api/webhooks/") && ["POST", "PATCH", "DELETE"].includes(request.method)) {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
     const originUrl = origin ? new URL(origin) : null;

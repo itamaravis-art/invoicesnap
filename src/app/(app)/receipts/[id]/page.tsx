@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, getShaamStatus } from "@/lib/utils";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ReceiptEditForm } from "@/components/receipts/ReceiptEditForm";
@@ -51,6 +51,17 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
           {receipt.ocr_status === "completed" ? "אושר" :
            receipt.ocr_status === "failed" ? "נכשל" : "בעיבוד"}
         </span>
+        {(() => {
+          const shaam = getShaamStatus(receipt);
+          if (shaam === "not_required") return null;
+          return (
+            <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+              shaam === "valid" ? "bg-secondary-container text-on-secondary-container" : "bg-error-container text-on-error-container"
+            }`}>
+              {shaam === "valid" ? "שע״מ תקין" : "חסר מספר הקצאה!"}
+            </span>
+          );
+        })()}
       </div>
 
       {/* Receipt image */}
@@ -105,6 +116,18 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
               <p className="font-bold" dir="ltr">{receipt.receipt_number}</p>
             </div>
           )}
+          {receipt.business_number && (
+            <div>
+              <p className="text-xs text-on-surface-variant mb-1">ח.פ./ע.מ.</p>
+              <p className="font-bold" dir="ltr">{receipt.business_number}</p>
+            </div>
+          )}
+          {receipt.allocation_number && (
+            <div>
+              <p className="text-xs text-on-surface-variant mb-1">מספר הקצאה</p>
+              <p className="font-bold" dir="ltr">{receipt.allocation_number}</p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-on-surface-variant mb-1">סוג</p>
             <p className="font-bold">{TYPE_LABELS[receipt.receipt_type] || receipt.receipt_type}</p>
@@ -155,6 +178,9 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
         category_id: receipt.category_id,
         notes: receipt.notes,
         tags: receipt.tags || [],
+        business_number: receipt.business_number ?? null,
+        allocation_number: receipt.allocation_number ?? null,
+        is_vat_reclaimable: receipt.is_vat_reclaimable ?? true,
       }} />
     </section>
   );

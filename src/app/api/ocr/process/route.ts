@@ -55,10 +55,24 @@ export async function POST(request: NextRequest) {
     let vendorId: string | null = null;
     let categoryId: string | null = null;
 
-    if (ocrResult.vendor_name) {
+    // Try matching by business_number first
+    if (ocrResult.business_number) {
+      const { data: vendorByBn } = await supabase
+        .from("vendors")
+        .select("id, default_category_id")
+        .eq("user_id", user.id)
+        .eq("business_number", ocrResult.business_number)
+        .maybeSingle();
+      if (vendorByBn) {
+        vendorId = vendorByBn.id;
+        categoryId = vendorByBn.default_category_id;
+      }
+    }
+
+    if (!vendorId && ocrResult.vendor_name) {
       const normalized = ocrResult.vendor_name.toLowerCase().trim();
 
-      // Try exact match first
+      // Try exact match by name
       const { data: existingVendor } = await supabase
         .from("vendors")
         .select("id, default_category_id")
@@ -85,6 +99,7 @@ export async function POST(request: NextRequest) {
             user_id: user.id,
             name: ocrResult.vendor_name,
             name_normalized: normalized,
+            business_number: ocrResult.business_number,
           })
           .select("id")
           .single();
@@ -104,6 +119,8 @@ export async function POST(request: NextRequest) {
       payment_method: ocrResult.payment_method,
       receipt_type: ocrResult.receipt_type,
       currency: ocrResult.currency,
+      business_number: ocrResult.business_number,
+      allocation_number: ocrResult.allocation_number,
       category_id: categoryId,
       ocr_status: ocrResult.confidence > OCR_MIN_CONFIDENCE ? "completed" : "failed",
       ocr_confidence: ocrResult.confidence,

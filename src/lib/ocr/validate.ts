@@ -75,6 +75,8 @@ export function validateOcrResult(raw: Record<string, unknown>): OcrResult {
     confidence,
     line_items: lineItems,
     raw_text: typeof raw.raw_text === "string" ? raw.raw_text : "",
+    business_number: typeof raw.business_number === "string" ? raw.business_number.replace(/\D/g, "").slice(0, 9) || null : null,
+    allocation_number: typeof raw.allocation_number === "string" ? raw.allocation_number.trim() || null : null,
   };
 }
 

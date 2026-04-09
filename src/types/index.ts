@@ -14,6 +14,7 @@ export interface UserSettings {
   currency: string;
   default_category_id: string | null;
   onboarding_completed: boolean;
+  phone_number: string | null;
   monthly_budget: number | null;
   created_at: string;
   updated_at: string;
@@ -36,6 +37,7 @@ export interface Vendor {
   user_id: string;
   name: string;
   name_normalized: string;
+  business_number: string | null;
   default_category_id: string | null;
   occurrence_count: number;
   last_seen_at: string;
@@ -70,6 +72,9 @@ export interface Receipt {
   gdrive_file_id: string | null;
   gdrive_synced_at: string | null;
   is_archived: boolean;
+  business_number: string | null;
+  allocation_number: string | null;
+  is_vat_reclaimable: boolean;
   archived_at: string | null;
   created_at: string;
   updated_at: string;
@@ -128,6 +133,36 @@ export interface OcrResult {
   confidence: number;
   line_items: Array<{ description: string; amount: number }>;
   raw_text: string;
+  business_number: string | null;
+  allocation_number: string | null;
+}
+
+export type ShaamStatus = "valid" | "missing" | "not_required";
+
+export interface BimonthlyVatReport {
+  id: string;
+  user_id: string;
+  year: number;
+  period: number;
+  total_amount: number;
+  total_vat: number;
+  reclaimable_vat: number;
+  receipt_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PortalShareToken {
+  id: string;
+  user_id: string;
+  accountant_id: string | null;
+  token: string;
+  label: string | null;
+  expires_at: string;
+  is_revoked: boolean;
+  last_accessed_at: string | null;
+  access_count: number;
+  created_at: string;
 }
 
 export interface DashboardData {

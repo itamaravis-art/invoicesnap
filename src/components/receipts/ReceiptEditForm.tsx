@@ -19,6 +19,9 @@ interface ReceiptData {
   category_id: string | null;
   notes: string | null;
   tags: string[];
+  business_number: string | null;
+  allocation_number: string | null;
+  is_vat_reclaimable: boolean;
 }
 
 interface Category {
@@ -73,6 +76,9 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
           category_id: form.category_id,
           notes: form.notes,
           tags: form.tags,
+          business_number: form.business_number,
+          allocation_number: form.allocation_number,
+          is_vat_reclaimable: form.is_vat_reclaimable,
           is_manually_edited: true,
         }),
       }).then((r) => r.json());
@@ -228,6 +234,42 @@ export function ReceiptEditForm({ receipt }: { receipt: ReceiptData }) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Business Number */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-bold text-on-surface-variant">ח.פ./ע.מ.</label>
+          <input
+            type="text"
+            dir="ltr"
+            value={form.business_number || ""}
+            onChange={(e) => setForm({ ...form, business_number: e.target.value || null })}
+            className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="לדוגמה: 514532891"
+          />
+        </div>
+        {/* Allocation Number */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-bold text-on-surface-variant">מספר הקצאה (שע״מ)</label>
+          <input
+            type="text"
+            dir="ltr"
+            value={form.allocation_number || ""}
+            onChange={(e) => setForm({ ...form, allocation_number: e.target.value || null })}
+            className="w-full px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="מספר הקצאה"
+          />
+        </div>
+        {/* VAT Reclaimable */}
+        <div className="col-span-2 flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="is_vat_reclaimable"
+            checked={form.is_vat_reclaimable ?? true}
+            onChange={(e) => setForm({ ...form, is_vat_reclaimable: e.target.checked })}
+            className="w-5 h-5 rounded accent-primary"
+          />
+          <label htmlFor="is_vat_reclaimable" className="text-sm font-bold text-on-surface-variant">מע״מ לניכוי</label>
         </div>
 
         {/* Notes */}

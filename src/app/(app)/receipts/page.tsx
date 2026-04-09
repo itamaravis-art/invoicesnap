@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getShaamStatus } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -42,7 +42,12 @@ export default async function ReceiptsPage() {
                   <span className="material-symbols-outlined">receipt_long</span>
                 </div>
                 <div>
-                  <p className="font-bold text-on-surface">{receipt.vendor_name || "שם ספק לא זוהה"}</p>
+                  <p className="font-bold text-on-surface">
+                    {receipt.vendor_name || "שם ספק לא זוהה"}
+                    {getShaamStatus(receipt) === "missing" && (
+                      <span className="material-symbols-outlined text-error text-sm" title="חסר מספר הקצאה שע״מ">warning</span>
+                    )}
+                  </p>
                   <p className="text-xs text-on-surface-variant">
                     {receipt.receipt_date
                       ? new Date(receipt.receipt_date).toLocaleDateString("he-IL")

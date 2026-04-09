@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest) {
 
   const allowedFields = [
     "display_name", "business_name", "business_id", "vat_rate",
-    "locale", "currency", "default_category_id", "monthly_budget",
+    "locale", "currency", "default_category_id", "monthly_budget", "phone_number",
   ];
 
   const updateData: Record<string, unknown> = {};

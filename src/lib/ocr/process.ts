@@ -47,6 +47,8 @@ export async function processReceiptImage(imageBuffer: Buffer, mimeType: string)
       confidence: 0,
       line_items: [],
       raw_text: text,
+      business_number: null,
+      allocation_number: null,
     };
   }
 

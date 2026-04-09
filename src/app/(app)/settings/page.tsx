@@ -38,6 +38,18 @@ export default async function SettingsPage() {
       subtitle: driveConnection?.is_active ? `מחובר: ${driveConnection.google_email}` : "עדיין לא מחובר",
       href: "/settings/gdrive",
     },
+    {
+      icon: "link",
+      title: "פורטל רואה חשבון",
+      subtitle: "שתף קבלות עם רואה החשבון",
+      href: "/settings/portal",
+    },
+    {
+      icon: "chat",
+      title: "שליחת קבלות בוואטסאפ",
+      subtitle: "שלח קבלות ישירות מוואטסאפ",
+      href: "/settings/whatsapp",
+    },
   ];
 
   return (
