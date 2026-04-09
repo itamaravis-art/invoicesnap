@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 
@@ -12,6 +12,14 @@ interface Accountant {
 }
 
 export default function ExportPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-12 text-on-surface-variant">טוען...</div>}>
+      <ExportContent />
+    </Suspense>
+  );
+}
+
+function ExportContent() {
   const searchParams = useSearchParams();
   const [year, setYear] = useState(parseInt(searchParams.get("year") || String(new Date().getFullYear())));
   const [month, setMonth] = useState(parseInt(searchParams.get("month") || String(new Date().getMonth() + 1)));

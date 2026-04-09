@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const [reportRes, recentRes, settingsRes] = await Promise.all([
     supabase.from("monthly_reports").select("*").eq("user_id", user.id).order("year", { ascending: false }).order("month", { ascending: false }).limit(6),
     supabase.from("receipts").select("vendor_name, total_amount, vat_amount, receipt_date, category:categories(name_he)").eq("user_id", user.id).eq("is_archived", false).order("created_at", { ascending: false }).limit(20),
-    supabase.from("user_settings").select("business_name, monthly_budget, vat_rate").eq("user_id", user.id).single(),
+    supabase.from("user_settings").select("business_name, monthly_budget, vat_rate").eq("user_id", user.id).maybeSingle(),
   ]);
 
   const reports = reportRes.data || [];

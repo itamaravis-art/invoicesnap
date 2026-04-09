@@ -13,7 +13,7 @@ export default function WhatsAppSettingsPage() {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("user_settings").select("phone_number").eq("user_id", user.id).single();
+      const { data } = await supabase.from("user_settings").select("phone_number").eq("user_id", user.id).maybeSingle();
       if (data?.phone_number) setPhone(data.phone_number);
     })();
   }, [supabase]);

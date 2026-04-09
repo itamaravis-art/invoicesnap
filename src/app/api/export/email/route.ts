@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     .from("user_settings")
     .select("business_name")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   // Get receipts for the month
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;

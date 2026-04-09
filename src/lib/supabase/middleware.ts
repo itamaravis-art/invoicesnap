@@ -78,7 +78,7 @@ export async function updateSession(request: NextRequest) {
       .from("user_settings")
       .select("onboarding_completed")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!settings || !settings.onboarding_completed) {
       const url = request.nextUrl.clone();

@@ -12,7 +12,7 @@ export async function getActiveDriveClient(userId: string): Promise<DriveClient 
     .select("*")
     .eq("user_id", userId)
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
   if (!connection) return null;
 

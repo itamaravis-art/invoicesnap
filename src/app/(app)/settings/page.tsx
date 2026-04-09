@@ -11,7 +11,7 @@ export default async function SettingsPage() {
     .from("user_settings")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const { data: driveConnection } = await supabase
     .from("gdrive_connections")

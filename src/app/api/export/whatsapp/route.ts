@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     .from("user_settings")
     .select("business_name")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const monthName = getHebrewMonthName(month);
   const totalFormatted = new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(report?.total_amount || 0);

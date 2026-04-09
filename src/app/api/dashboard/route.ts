@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     .from("user_settings")
     .select("monthly_budget")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const MONTH_LABELS = ["ינו","פבר","מרץ","אפר","מאי","יונ","יול","אוג","ספט","אוק","נוב","דצמ"];
 

@@ -10,7 +10,7 @@ export async function GET() {
     .from("user_settings")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
