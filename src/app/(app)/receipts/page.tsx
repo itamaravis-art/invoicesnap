@@ -70,6 +70,11 @@ export default async function ReceiptsPage() {
                   {receipt.ocr_status === "completed" ? "אושר" :
                    receipt.ocr_status === "failed" ? "נכשל" : "בעיבוד"}
                 </span>
+                {receipt.tags?.includes("duplicate") && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 ms-1">
+                    כפולה?
+                  </span>
+                )}
               </div>
             </Link>
           ))}

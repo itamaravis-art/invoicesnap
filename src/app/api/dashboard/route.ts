@@ -72,6 +72,8 @@ export async function GET(request: NextRequest) {
     .eq("user_id", user.id)
     .single();
 
+  const MONTH_LABELS = ["ינו","פבר","מרץ","אפר","מאי","יונ","יול","אוג","ספט","אוק","נוב","דצמ"];
+
   return NextResponse.json({
     totalSpend: report?.total_amount || 0,
     totalVat: report?.total_vat || 0,
@@ -80,6 +82,7 @@ export async function GET(request: NextRequest) {
     trend: (trend || []).reverse().map((t) => ({
       month: `${t.year}-${String(t.month).padStart(2, "0")}`,
       amount: t.total_amount,
+      label: MONTH_LABELS[t.month - 1],
     })),
     budgetUsed: report?.total_amount || 0,
     monthlyBudget: settings?.monthly_budget || null,

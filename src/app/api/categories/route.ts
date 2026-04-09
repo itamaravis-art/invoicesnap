@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       icon: body.icon || "receipt_long",
       is_system: false,
       sort_order: body.sort_order || 99,
+      tax_code: body.tax_code || null,
     })
     .select()
     .single();

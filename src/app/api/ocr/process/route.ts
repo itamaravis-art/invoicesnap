@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { processReceiptImage } from "@/lib/ocr/process";
 import { OCR_MIN_CONFIDENCE } from "@/lib/constants";
+import { generateReceiptHash } from "@/lib/utils";
 
 export const maxDuration = 60;
 
@@ -127,6 +128,26 @@ export async function POST(request: NextRequest) {
       ocr_raw_response: ocrResult as unknown as Record<string, unknown>,
       ocr_language: ocrResult.language,
     };
+
+    // Generate content hash for duplicate detection
+    const contentHash = generateReceiptHash(ocrResult.vendor_name, ocrResult.receipt_date, ocrResult.total_amount);
+    if (contentHash) {
+      (updateData as Record<string, unknown>).content_hash = contentHash;
+
+      // Check for duplicates
+      const { data: duplicates } = await supabase
+        .from("receipts")
+        .select("id, vendor_name, receipt_date, total_amount")
+        .eq("user_id", user.id)
+        .eq("content_hash", contentHash)
+        .eq("is_archived", false)
+        .neq("id", receipt_id)
+        .limit(1);
+
+      if (duplicates && duplicates.length > 0) {
+        (updateData as Record<string, unknown>).tags = ["duplicate"];
+      }
+    }
 
     await supabase.from("receipts").update(updateData).eq("id", receipt_id);
 

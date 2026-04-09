@@ -4,12 +4,14 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { BulkUpload } from "@/components/receipts/BulkUpload";
+import { saveLocalReceipt } from "@/lib/offline/db";
 
 export default function NewReceiptPage() {
   const [mode, setMode] = useState<"single" | "bulk">("single");
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -23,6 +25,21 @@ export default function NewReceiptPage() {
     setUploading(true);
 
     try {
+      if (!navigator.onLine) {
+        // Save locally for later sync
+        const arrayBuffer = await file.arrayBuffer();
+        await saveLocalReceipt({
+          id: crypto.randomUUID(),
+          localImage: new Blob([arrayBuffer], { type: file.type }),
+          dirty: true,
+          data: { original_filename: file.name, created_at: new Date().toISOString() },
+          createdAt: Date.now(),
+        });
+        setStatus("offline-saved");
+        setUploading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -135,6 +152,14 @@ export default function NewReceiptPage() {
         </>
       ) : (
         <BulkUpload />
+      )}
+
+      {status === "offline-saved" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+          <span className="material-symbols-outlined text-amber-600 text-2xl mb-2 block">cloud_off</span>
+          <p className="font-bold text-amber-900 text-sm">הקבלה נשמרה במכשיר</p>
+          <p className="text-xs text-amber-700 mt-1">הקבלה תעלה ותעובד אוטומטית כשתתחבר לאינטרנט</p>
+        </div>
       )}
 
       {error && (

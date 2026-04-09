@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency, getHebrewMonthName } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { MissingAlerts } from "@/components/dashboard/MissingAlerts";
+import { ExpenseTrend } from "@/components/dashboard/ExpenseTrend";
+import { TopCategories } from "@/components/dashboard/TopCategories";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -36,6 +39,46 @@ export default async function DashboardPage() {
     .select("monthly_budget")
     .eq("user_id", user.id)
     .single();
+
+  // Trend data (12 months)
+  const MONTH_LABELS = ["ינו","פבר","מרץ","אפר","מאי","יונ","יול","אוג","ספט","אוק","נוב","דצמ"];
+  const trend: Array<{ month: string; amount: number; label: string }> = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const { data: monthReport } = await supabase
+      .from("monthly_reports")
+      .select("total_amount")
+      .eq("user_id", user.id)
+      .eq("year", y)
+      .eq("month", m + 1)
+      .maybeSingle();
+    trend.push({
+      month: `${y}-${String(m + 1).padStart(2, "0")}`,
+      amount: monthReport?.total_amount || 0,
+      label: MONTH_LABELS[m],
+    });
+  }
+
+  // Top categories this month
+  const { data: catReceipts } = await supabase
+    .from("receipts")
+    .select("total_amount, category:categories(id, name_he, color, icon)")
+    .eq("user_id", user.id)
+    .eq("is_archived", false)
+    .gte("receipt_date", `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`)
+    .lte("receipt_date", `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-31`);
+
+  const catMap = new Map<string, { name_he: string; color: string; icon: string; amount: number; count: number }>();
+  for (const r of catReceipts || []) {
+    const cat = r.category as unknown as Record<string, string> | null;
+    const key = cat?.id || "none";
+    const existing = catMap.get(key);
+    if (existing) { existing.amount += r.total_amount || 0; existing.count++; }
+    else catMap.set(key, { name_he: cat?.name_he || "ללא קטגוריה", color: cat?.color || "#9ca3af", icon: cat?.icon || "receipt_long", amount: r.total_amount || 0, count: 1 });
+  }
+  const topCategories = Array.from(catMap.values()).sort((a, b) => b.amount - a.amount);
 
   const totalSpend = report?.total_amount || 0;
   const totalVat = report?.total_vat || 0;
@@ -129,44 +172,16 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {/* Chart Section */}
-      <section className="bg-surface-container-lowest rounded-3xl p-8 card-hover">
-        <div className="flex justify-between items-center mb-10">
-          <h3 className="text-lg font-bold text-on-surface">מגמת הוצאות</h3>
-          <div className="flex gap-2">
-            <button className="bg-surface-container-high px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant">
-              שנתי
-            </button>
-            <button className="bg-primary text-on-primary px-4 py-2 rounded-full text-xs font-bold">
-              חודשי
-            </button>
-          </div>
-        </div>
-        <div className="w-full h-48 relative">
-          <svg className="w-full h-full overflow-visible" viewBox="0 0 1000 200" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0040a1" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#0040a1" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0,150 Q100,140 200,80 T400,100 T600,40 T800,120 T1000,60"
-              fill="none" stroke="#0040a1" strokeWidth="4" strokeLinecap="round"
-            />
-            <path
-              d="M0,150 Q100,140 200,80 T400,100 T600,40 T800,120 T1000,60 V200 H0 Z"
-              fill="url(#chartGradient)"
-            />
-          </svg>
-          {receiptCount === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-sm text-on-surface-variant bg-surface/80 px-4 py-2 rounded-xl">
-                הגרף יתמלא כשיהיו נתונים
-              </p>
-            </div>
-          )}
-        </div>
+      {/* Missing Receipt Alerts */}
+      <MissingAlerts />
+
+      {/* Analytics Charts */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Expense Trend */}
+        <ExpenseTrend data={trend} />
+
+        {/* Category Breakdown */}
+        <TopCategories data={topCategories} />
       </section>
 
       {/* Recent Expenses */}

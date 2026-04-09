@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/layout/AppShell";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -11,6 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <AppShell userName={displayName} avatarUrl={avatarUrl}>
       {children}
+      <ChatWidget />
     </AppShell>
   );
 }

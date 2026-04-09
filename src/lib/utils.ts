@@ -59,3 +59,21 @@ export function getShaamStatus(receipt: { total_amount: number | null; allocatio
   if (!["tax_invoice", "invoice"].includes(receipt.receipt_type)) return "not_required";
   return receipt.allocation_number ? "valid" : "missing";
 }
+
+export function generateReceiptHash(vendorName: string | null, date: string | null, amount: number | null): string | null {
+  if (!vendorName && !date && !amount) return null;
+  const parts = [
+    (vendorName || "").toLowerCase().trim(),
+    date || "",
+    amount != null ? amount.toFixed(2) : "",
+  ];
+  // Simple hash - good enough for dedup
+  let hash = 0;
+  const str = parts.join("|");
+  for (let i = 0; i < str.length; i++) {
+    const chr = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0;
+  }
+  return hash.toString(36);
+}

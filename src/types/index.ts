@@ -29,6 +29,7 @@ export interface Category {
   icon: string;
   is_system: boolean;
   sort_order: number;
+  tax_code: string | null;
   created_at: string;
 }
 
