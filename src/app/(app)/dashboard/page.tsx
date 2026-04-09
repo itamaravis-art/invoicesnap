@@ -38,27 +38,29 @@ export default async function DashboardPage() {
     .from("user_settings")
     .select("monthly_budget")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
-  // Trend data (12 months)
+  // Trend data (12 months) - single query instead of 12
   const MONTH_LABELS = ["ינו","פבר","מרץ","אפר","מאי","יונ","יול","אוג","ספט","אוק","נוב","דצמ"];
+  const trendStart = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const { data: allReports } = await supabase
+    .from("monthly_reports")
+    .select("year, month, total_amount")
+    .eq("user_id", user.id)
+    .gte("year", trendStart.getFullYear())
+    .order("year", { ascending: true })
+    .order("month", { ascending: true });
+
+  const reportMap = new Map<string, number>();
+  for (const r of allReports || []) {
+    reportMap.set(`${r.year}-${String(r.month).padStart(2, "0")}`, r.total_amount || 0);
+  }
+
   const trend: Array<{ month: string; amount: number; label: string }> = [];
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const y = d.getFullYear();
-    const m = d.getMonth();
-    const { data: monthReport } = await supabase
-      .from("monthly_reports")
-      .select("total_amount")
-      .eq("user_id", user.id)
-      .eq("year", y)
-      .eq("month", m + 1)
-      .maybeSingle();
-    trend.push({
-      month: `${y}-${String(m + 1).padStart(2, "0")}`,
-      amount: monthReport?.total_amount || 0,
-      label: MONTH_LABELS[m],
-    });
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    trend.push({ month: key, amount: reportMap.get(key) || 0, label: MONTH_LABELS[d.getMonth()] });
   }
 
   // Top categories this month
