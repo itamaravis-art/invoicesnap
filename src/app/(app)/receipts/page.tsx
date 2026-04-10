@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCurrency, getShaamStatus } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { RetryOcrButton } from "@/components/receipts/RetryOcrButton";
 
 export default async function ReceiptsPage() {
   const supabase = await createClient();
@@ -73,19 +74,24 @@ export default async function ReceiptsPage() {
                 <p className="font-black text-on-surface">
                   {receipt.total_amount ? formatCurrency(receipt.total_amount) : "—"}
                 </p>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                  receipt.ocr_status === "completed" ? "bg-secondary-container text-on-secondary-container" :
-                  receipt.ocr_status === "failed" ? "bg-error-container text-on-error-container" :
-                  "bg-tertiary-container text-on-tertiary-container"
-                }`}>
-                  {receipt.ocr_status === "completed" ? "אושר" :
-                   receipt.ocr_status === "failed" ? "נכשל" : "בעיבוד"}
-                </span>
-                {receipt.tags?.includes("duplicate") && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 ms-1">
-                    כפולה?
+                <div className="flex items-center gap-1 flex-wrap justify-start">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    receipt.ocr_status === "completed" ? "bg-secondary-container text-on-secondary-container" :
+                    receipt.ocr_status === "failed" ? "bg-error-container text-on-error-container" :
+                    "bg-tertiary-container text-on-tertiary-container"
+                  }`}>
+                    {receipt.ocr_status === "completed" ? "אושר" :
+                     receipt.ocr_status === "failed" ? "נכשל" : "בעיבוד"}
                   </span>
-                )}
+                  {receipt.ocr_status === "failed" && (
+                    <RetryOcrButton receiptId={receipt.id} />
+                  )}
+                  {receipt.tags?.includes("duplicate") && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800">
+                      כפולה?
+                    </span>
+                  )}
+                </div>
               </div>
             </Link>
           ))}
