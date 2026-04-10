@@ -32,11 +32,13 @@ function ExportContent() {
   const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 
   const fetchAccountants = useCallback(async () => {
-    const res = await fetch("/api/accountants");
+    const res = await fetch("/api/accountants", { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
-      setAccountants(data.accountants || []);
-      if (data.accountants?.length > 0) setSelectedAccountant(data.accountants[0].id);
+      // API returns array directly, not wrapped in { accountants: [...] }
+      const list: Accountant[] = Array.isArray(data) ? data : (data.accountants || []);
+      setAccountants(list);
+      if (list.length > 0) setSelectedAccountant(list[0].id);
     }
   }, []);
 
