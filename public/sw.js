@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'invoicesnap-v1';
+const CACHE_VERSION = 'invoicesnap-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -151,7 +151,9 @@ async function cacheFirstWithNetworkUpdate(request, cacheName) {
   const fetchPromise = fetch(request)
     .then((networkResponse) => {
       if (networkResponse.ok) {
-        caches.open(cacheName).then((cache) => cache.put(request, networkResponse.clone()));
+        // Clone BEFORE async operation - body can only be consumed once
+        const clonedResponse = networkResponse.clone();
+        caches.open(cacheName).then((cache) => cache.put(request, clonedResponse));
       }
       return networkResponse;
     })
