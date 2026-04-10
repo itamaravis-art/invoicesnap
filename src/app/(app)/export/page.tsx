@@ -52,29 +52,44 @@ function ExportContent() {
     if (!acct?.email) { showResult("error", "לרואה החשבון אין כתובת אימייל"); return; }
     setSending("email");
     try {
-      const res = await fetch("/api/export/email", {
+      // Generate CSV and get signed download link
+      const res = await fetch("/api/export/csv-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year, month, accountant_id: selectedAccountant }),
+        body: JSON.stringify({ year, month }),
       });
-      if (res.ok) {
-        showResult("success", `הדוח נשלח בהצלחה ל-${acct.email}`);
-      } else {
-        // Fallback: open user's mail client with pre-filled message
-        const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
-        const subject = `דוח קבלות ${MONTHS[month - 1]} ${year}`;
-        const body = `שלום ${acct.name},\n\nמצורף דוח הקבלות לחודש ${MONTHS[month - 1]} ${year}.\n\nכדי להוריד את קובץ ה-CSV המלא, לחץ על כפתור "הורד ZIP" באפליקציה ושלח לי בתגובה.\n\nתודה!`;
-        const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailto;
-        showResult("success", "נפתחה אפליקציית המייל - הורד את ה-ZIP וצרף להודעה");
+
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        showResult("error", d.error || "לא נמצאו קבלות לחודש זה");
+        return;
       }
-    } catch {
-      // Network error - also fallback to mailto
-      const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
-      const subject = `דוח קבלות ${MONTHS[month - 1]} ${year}`;
-      const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}`;
+
+      const data = await res.json();
+      const monthName = MONTHS[month - 1];
+      const formatNis = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
+
+      const subject = `דוח קבלות ${monthName} ${year}`;
+      const cleanBody = [
+        `שלום ${acct.name},`,
+        ``,
+        `מצורף דוח הקבלות לחודש ${monthName} ${year}:`,
+        ``,
+        `סה״כ הוצאות: ${formatNis(data.total_amount)}`,
+        `מע״מ לניכוי: ${formatNis(data.total_vat)}`,
+        `מספר קבלות: ${data.receipt_count}`,
+        ``,
+        `להורדת קובץ CSV מלא (פותח באקסל):`,
+        data.url,
+        ``,
+        `תודה!`,
+      ].join("\n");
+
+      const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(cleanBody)}`;
       window.location.href = mailto;
-      showResult("success", "נפתחה אפליקציית המייל");
+      showResult("success", `נפתחה אפליקציית המייל עם לינק להורדה (${data.receipt_count} קבלות)`);
+    } catch {
+      showResult("error", "שגיאה ביצירת הדוח. בדוק את החיבור.");
     }
     finally { setSending(""); }
   }
