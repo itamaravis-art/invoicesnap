@@ -3,93 +3,122 @@ import { createClient } from "@/lib/supabase/server";
 import { generateCSV } from "@/lib/export/csv";
 import { sendReportEmail } from "@/lib/export/email";
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
-  const { year, month, accountant_id } = body;
+    const body = await request.json();
+    const { year, month, accountant_id, all } = body;
 
-  if (!year || !month || !accountant_id) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!accountant_id) {
+      return NextResponse.json({ error: "Missing accountant_id" }, { status: 400 });
+    }
+
+    // Get accountant email
+    const { data: accountant } = await supabase
+      .from("accountant_contacts")
+      .select("email, name")
+      .eq("id", accountant_id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!accountant?.email) {
+      return NextResponse.json({ error: "לרואה החשבון אין כתובת אימייל" }, { status: 404 });
+    }
+
+    // Get user settings for business name
+    const { data: settings } = await supabase
+      .from("user_settings")
+      .select("business_name, display_name")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const businessName = settings?.business_name || settings?.display_name || "עסק";
+
+    // Build receipts query
+    let query = supabase
+      .from("receipts")
+      .select("*, category:categories(name_he)")
+      .eq("user_id", user.id)
+      .eq("is_archived", false)
+      .order("receipt_date", { ascending: false });
+
+    if (!all) {
+      if (!year || !month) {
+        return NextResponse.json({ error: "Missing year or month" }, { status: 400 });
+      }
+      const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+      const endDate = new Date(year, month, 0).toISOString().split("T")[0];
+      query = query.gte("receipt_date", startDate).lte("receipt_date", endDate);
+    }
+
+    const { data: receipts } = await query;
+
+    if (!receipts || receipts.length === 0) {
+      return NextResponse.json({ error: "לא נמצאו קבלות לתקופה זו" }, { status: 404 });
+    }
+
+    // Generate CSV
+    const csvRows = receipts.map((r) => ({
+      ...r,
+      category_name: (r.category as { name_he: string } | null)?.name_he || null,
+    }));
+    const csv = generateCSV(csvRows, year || new Date().getFullYear(), month || 1);
+    const csvBuffer = Buffer.from(csv, "utf-8");
+
+    // Calculate totals
+    const totalAmount = receipts.reduce((sum, r) => sum + (r.total_amount || 0), 0);
+    const totalVat = receipts.reduce((sum, r) => sum + (r.vat_amount || 0), 0);
+
+    // Send email via Resend (centralized - one API key for all users)
+    // The user's registered email becomes the reply-to address
+    const result = await sendReportEmail({
+      to: accountant.email,
+      fromName: businessName,
+      replyTo: user.email || "",
+      businessName,
+      year: year || new Date().getFullYear(),
+      month: month || new Date().getMonth() + 1,
+      totalAmount,
+      totalVat,
+      receiptCount: receipts.length,
+      csvBuffer,
+      all,
+    });
+
+    if (!result.success) {
+      return NextResponse.json({
+        error: result.error || "שליחת המייל נכשלה",
+        details: result.error,
+      }, { status: 500 });
+    }
+
+    // Update monthly report status
+    if (!all && year && month) {
+      await supabase
+        .from("monthly_reports")
+        .update({
+          sent_to_accountant_at: new Date().toISOString(),
+          sent_method: "email",
+          status: "sent",
+        })
+        .eq("user_id", user.id)
+        .eq("year", year)
+        .eq("month", month);
+    }
+
+    return NextResponse.json({
+      success: true,
+      sent_to: accountant.email,
+      reply_to: user.email,
+      receipt_count: receipts.length,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Server error: ${msg}` }, { status: 500 });
   }
-
-  // Get accountant email
-  const { data: accountant } = await supabase
-    .from("accountant_contacts")
-    .select("email, name")
-    .eq("id", accountant_id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!accountant?.email) {
-    return NextResponse.json({ error: "Accountant email not found" }, { status: 404 });
-  }
-
-  // Get user settings
-  const { data: settings } = await supabase
-    .from("user_settings")
-    .select("business_name")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  // Get receipts for the month
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
-
-  const { data: receipts } = await supabase
-    .from("receipts")
-    .select("*, category:categories(name_he)")
-    .eq("user_id", user.id)
-    .eq("is_archived", false)
-    .gte("receipt_date", startDate)
-    .lte("receipt_date", endDate)
-    .order("receipt_date");
-
-  if (!receipts || receipts.length === 0) {
-    return NextResponse.json({ error: "No receipts found for this month" }, { status: 404 });
-  }
-
-  // Generate CSV
-  const csvRows = receipts.map((r) => ({
-    ...r,
-    category_name: (r.category as { name_he: string } | null)?.name_he || null,
-  }));
-  const csv = generateCSV(csvRows, year, month);
-  const csvBuffer = Buffer.from(csv, "utf-8");
-
-  // Calculate totals
-  const totalAmount = receipts.reduce((sum, r) => sum + (r.total_amount || 0), 0);
-  const totalVat = receipts.reduce((sum, r) => sum + (r.vat_amount || 0), 0);
-
-  // Send email
-  const sent = await sendReportEmail({
-    to: accountant.email,
-    businessName: settings?.business_name || "\u05E2\u05E1\u05E7",
-    year,
-    month,
-    totalAmount,
-    totalVat,
-    receiptCount: receipts.length,
-    csvBuffer,
-  });
-
-  if (!sent) {
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
-  }
-
-  // Update monthly report
-  await supabase
-    .from("monthly_reports")
-    .update({
-      sent_to_accountant_at: new Date().toISOString(),
-      sent_method: "email",
-      status: "sent",
-    })
-    .eq("user_id", user.id)
-    .eq("year", year)
-    .eq("month", month);
-
-  return NextResponse.json({ success: true });
 }

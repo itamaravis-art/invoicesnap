@@ -55,7 +55,23 @@ function ExportContent() {
     if (!acct?.email) { showResult("error", "לרואה החשבון אין כתובת אימייל"); return; }
     setSending("email");
     try {
-      // Try sending via Gmail API (automatic - requires Google connected)
+      // Try Resend (centralized - one API key for all users)
+      const resendRes = await fetch("/api/export/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accountant_id: selectedAccountant,
+          ...(sendAll ? { all: true } : { year, month }),
+        }),
+      });
+
+      if (resendRes.ok) {
+        const data = await resendRes.json();
+        showResult("success", `✓ הדוח נשלח אל ${data.sent_to} (${data.receipt_count} קבלות). תשובות יגיעו ל-${data.reply_to}`);
+        return;
+      }
+
+      // Resend failed - try Gmail API as fallback
       const gmailRes = await fetch("/api/export/gmail-send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,10 +87,9 @@ function ExportContent() {
         return;
       }
 
-      // Gmail API failed - check reason
       const gmailErr = await gmailRes.json().catch(() => ({}));
 
-      if (gmailErr.needs_connect || gmailErr.needs_reconnect) {
+      if (gmailErr.needs_connect || gmailErr.needs_reconnect || gmailRes.status >= 500) {
         // Fallback: use Gmail compose URL + CSV download
         const csvRes = await fetch("/api/export/csv-link", {
           method: "POST",
