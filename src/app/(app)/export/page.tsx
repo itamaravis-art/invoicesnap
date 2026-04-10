@@ -57,9 +57,25 @@ function ExportContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ year, month, accountant_id: selectedAccountant }),
       });
-      if (res.ok) showResult("success", `הדוח נשלח בהצלחה ל-${acct.email}`);
-      else { const d = await res.json(); showResult("error", d.error || "שגיאה בשליחה"); }
-    } catch { showResult("error", "שגיאה בשליחה. בדוק את החיבור."); }
+      if (res.ok) {
+        showResult("success", `הדוח נשלח בהצלחה ל-${acct.email}`);
+      } else {
+        // Fallback: open user's mail client with pre-filled message
+        const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+        const subject = `דוח קבלות ${MONTHS[month - 1]} ${year}`;
+        const body = `שלום ${acct.name},\n\nמצורף דוח הקבלות לחודש ${MONTHS[month - 1]} ${year}.\n\nכדי להוריד את קובץ ה-CSV המלא, לחץ על כפתור "הורד ZIP" באפליקציה ושלח לי בתגובה.\n\nתודה!`;
+        const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        showResult("success", "נפתחה אפליקציית המייל - הורד את ה-ZIP וצרף להודעה");
+      }
+    } catch {
+      // Network error - also fallback to mailto
+      const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+      const subject = `דוח קבלות ${MONTHS[month - 1]} ${year}`;
+      const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}`;
+      window.location.href = mailto;
+      showResult("success", "נפתחה אפליקציית המייל");
+    }
     finally { setSending(""); }
   }
 
