@@ -55,7 +55,7 @@ function ExportContent() {
     if (!acct?.email) { showResult("error", "לרואה החשבון אין כתובת אימייל"); return; }
     setSending("email");
     try {
-      // Generate CSV and get signed download link
+      // Fetch CSV data from API
       const res = await fetch("/api/export/csv-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,6 +73,20 @@ function ExportContent() {
       const formatNis = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
       const periodLabel = sendAll ? "כל הקבלות" : `${monthName} ${year}`;
 
+      // 1. Auto-download the CSV file to user's device
+      const blob = new Blob([data.csv], { type: "text/csv; charset=utf-8" });
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = sendAll
+        ? `invoicesnap_all_receipts.csv`
+        : `invoicesnap_${year}_${String(month).padStart(2, "0")}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+      // 2. Open mailto with pre-filled body and instructions
       const subject = `דוח קבלות ${periodLabel}`;
       const cleanBody = [
         `שלום ${acct.name},`,
@@ -83,15 +97,15 @@ function ExportContent() {
         `מע״מ לניכוי: ${formatNis(data.total_vat)}`,
         `מספר קבלות: ${data.receipt_count}`,
         ``,
-        `להורדת קובץ CSV מלא (פותח באקסל):`,
-        data.url,
+        `קובץ ה-CSV המלא הורד זה עתה למכשיר שלך.`,
+        `אנא צרף אותו להודעה זו לפני השליחה.`,
         ``,
         `תודה!`,
       ].join("\n");
 
       const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(cleanBody)}`;
-      window.location.href = mailto;
-      showResult("success", `נפתחה אפליקציית המייל עם לינק להורדה (${data.receipt_count} קבלות)`);
+      setTimeout(() => { window.location.href = mailto; }, 300);
+      showResult("success", `הקובץ הורד (${data.receipt_count} קבלות). אפליקציית המייל נפתחת - צרף את הקובץ להודעה.`);
     } catch {
       showResult("error", "שגיאה ביצירת הדוח. בדוק את החיבור.");
     }
