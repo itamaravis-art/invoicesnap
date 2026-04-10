@@ -19,6 +19,9 @@ interface SendReportEmailParams {
   receiptCount: number;
   csvBuffer: Buffer;
   all?: boolean;
+  accountantName?: string;
+  accountantEmail?: string;
+  isForwardMode?: boolean;
 }
 
 export async function sendReportEmail(params: SendReportEmailParams): Promise<{ success: boolean; error?: string }> {
@@ -30,12 +33,41 @@ export async function sendReportEmail(params: SendReportEmailParams): Promise<{ 
   const formatAmount = (n: number) =>
     new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
 
+  // Subject changes based on mode
+  const subject = params.isForwardMode
+    ? `🔄 העבר לרואה חשבון: דוח קבלות ${periodLabel} - ${params.businessName}`
+    : `InvoiceSnap - דוח קבלות ${periodLabel} - ${params.businessName}`;
+
+  // Forward instructions banner (only in forward mode)
+  const forwardBanner = params.isForwardMode ? `
+    <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+      <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #92400e;">
+        📤 הדוח מוכן לשליחה לרואה החשבון
+      </p>
+      <p style="margin: 0 0 8px 0; color: #78350f; font-size: 14px;">
+        בשל הגדרות השירות הנוכחיות, הדוח נשלח אליך ישירות. כדי להעביר אותו לרואה החשבון:
+      </p>
+      <ol style="margin: 8px 0; padding-inline-start: 24px; color: #78350f; font-size: 14px;">
+        <li>לחץ על <strong>"העבר"</strong> (Forward) במייל הזה</li>
+        <li>הזן את הכתובת: <strong style="direction: ltr; display: inline-block;">${params.accountantEmail || ""}</strong></li>
+        <li>לחץ שלח ✓</li>
+      </ol>
+      <p style="margin: 8px 0 0 0; color: #78350f; font-size: 12px;">
+        ה-CSV כבר מצורף ויישלח יחד עם ההעברה אוטומטית.
+      </p>
+    </div>
+  ` : "";
+
+  const greeting = params.isForwardMode
+    ? `שלום,`
+    : `שלום${params.accountantName ? ` ${params.accountantName}` : ""},`;
+
   try {
     const result = await getResend().emails.send({
       from: fromDisplay,
       to: params.to,
       replyTo: params.replyTo,
-      subject: `InvoiceSnap - דוח קבלות ${periodLabel} - ${params.businessName}`,
+      subject,
       html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: #0040a1; color: white; padding: 20px; border-radius: 12px 12px 0 0;">
@@ -43,7 +75,8 @@ export async function sendReportEmail(params: SendReportEmailParams): Promise<{ 
             <p style="margin: 8px 0 0 0; opacity: 0.9;">דוח קבלות ${periodLabel}</p>
           </div>
           <div style="background: #f7f9fb; padding: 24px; border-radius: 0 0 12px 12px;">
-            <p>שלום,</p>
+            ${forwardBanner}
+            <p>${greeting}</p>
             <p>מצורף דוח הקבלות של <strong>${params.businessName}</strong> לתקופת ${periodLabel}.</p>
 
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden;">
@@ -69,8 +102,7 @@ export async function sendReportEmail(params: SendReportEmailParams): Promise<{ 
 
             <hr style="border: none; border-top: 1px solid #e0e3e5; margin: 24px 0;">
             <p style="color: #9aa0a6; font-size: 12px; margin: 0;">
-              נשלח באמצעות <a href="https://invoicesnap-sigma.vercel.app" style="color: #0040a1; text-decoration: none;">InvoiceSnap</a> - ניהול קבלות חכם לעצמאים.<br/>
-              להגיב ישירות ל-${params.replyTo}, פשוט לחץ "השב".
+              נשלח באמצעות <a href="https://invoicesnap-sigma.vercel.app" style="color: #0040a1; text-decoration: none;">InvoiceSnap</a> - ניהול קבלות חכם לעצמאים.
             </p>
           </div>
         </div>

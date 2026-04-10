@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
     const totalVat = receipts.reduce((sum, r) => sum + (r.vat_amount || 0), 0);
 
     // Send email via Resend (centralized - one API key for all users)
-    // The user's registered email becomes the reply-to address
-    const result = await sendReportEmail({
+    // First attempt: send directly to accountant
+    let result = await sendReportEmail({
       to: accountant.email,
       fromName: businessName,
       replyTo: user.email || "",
@@ -88,7 +88,41 @@ export async function POST(request: NextRequest) {
       receiptCount: receipts.length,
       csvBuffer,
       all,
+      accountantName: accountant.name,
+      accountantEmail: accountant.email,
     });
+
+    let sentViaForwarding = false;
+
+    // Detect Resend sandbox mode (unverified domain) - can only send to account owner
+    // When this happens, send to user's own email instead with forward instructions
+    const isSandboxError = result.error && (
+      result.error.includes("testing emails") ||
+      result.error.includes("only send") ||
+      result.error.includes("verify a domain") ||
+      result.error.includes("You can only send")
+    );
+
+    if (!result.success && isSandboxError && user.email) {
+      // Fall back: send to user's own email with "forward to accountant" header
+      result = await sendReportEmail({
+        to: user.email,
+        fromName: businessName,
+        replyTo: user.email,
+        businessName,
+        year: year || new Date().getFullYear(),
+        month: month || new Date().getMonth() + 1,
+        totalAmount,
+        totalVat,
+        receiptCount: receipts.length,
+        csvBuffer,
+        all,
+        accountantName: accountant.name,
+        accountantEmail: accountant.email,
+        isForwardMode: true,
+      });
+      sentViaForwarding = result.success;
+    }
 
     if (!result.success) {
       return NextResponse.json({
@@ -98,7 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update monthly report status
-    if (!all && year && month) {
+    if (!all && year && month && !sentViaForwarding) {
       await supabase
         .from("monthly_reports")
         .update({
@@ -113,9 +147,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      sent_to: accountant.email,
+      sent_to: sentViaForwarding ? user.email : accountant.email,
+      forward_to: sentViaForwarding ? accountant.email : null,
       reply_to: user.email,
       receipt_count: receipts.length,
+      forwarding_mode: sentViaForwarding,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

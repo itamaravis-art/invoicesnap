@@ -67,7 +67,11 @@ function ExportContent() {
 
       if (resendRes.ok) {
         const data = await resendRes.json();
-        showResult("success", `✓ הדוח נשלח אל ${data.sent_to} (${data.receipt_count} קבלות). תשובות יגיעו ל-${data.reply_to}`);
+        if (data.forwarding_mode) {
+          showResult("success", `✓ המייל נשלח לתיבה שלך (${data.sent_to}). פתח אותו, לחץ "העבר" ושלח ל-${data.forward_to}`);
+        } else {
+          showResult("success", `✓ הדוח נשלח אוטומטית אל ${data.sent_to} (${data.receipt_count} קבלות)`);
+        }
         return;
       }
 
