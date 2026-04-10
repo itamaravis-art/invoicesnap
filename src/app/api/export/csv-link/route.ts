@@ -8,24 +8,26 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { year, month } = body;
+  const { year, month, all } = body;
 
-  if (!year || !month) {
-    return NextResponse.json({ error: "Missing year or month" }, { status: 400 });
-  }
-
-  // Get receipts for the month (proper end-of-month)
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = new Date(year, month, 0).toISOString().split("T")[0];
-
-  const { data: receipts } = await supabase
+  // Build query - either filter by month or get all receipts
+  let query = supabase
     .from("receipts")
     .select("*, category:categories(name_he)")
     .eq("user_id", user.id)
     .eq("is_archived", false)
-    .gte("receipt_date", startDate)
-    .lte("receipt_date", endDate)
-    .order("receipt_date");
+    .order("receipt_date", { ascending: false });
+
+  if (!all) {
+    if (!year || !month) {
+      return NextResponse.json({ error: "Missing year or month" }, { status: 400 });
+    }
+    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+    const endDate = new Date(year, month, 0).toISOString().split("T")[0];
+    query = query.gte("receipt_date", startDate).lte("receipt_date", endDate);
+  }
+
+  const { data: receipts } = await query;
 
   if (!receipts || receipts.length === 0) {
     return NextResponse.json({ error: "No receipts found for this month" }, { status: 404 });
@@ -36,12 +38,13 @@ export async function POST(request: NextRequest) {
     ...r,
     category_name: (r.category as { name_he: string } | null)?.name_he || null,
   }));
-  const csv = generateCSV(csvRows, year, month);
+  const csv = generateCSV(csvRows, year || new Date().getFullYear(), month || 1);
   const csvBuffer = Buffer.from(csv, "utf-8");
 
-  // Upload to storage under exports/{user_id}/{year}_{month}_{timestamp}.csv
+  // Upload to storage under {user_id}/exports/... (must start with user_id for RLS)
   const timestamp = Date.now();
-  const fileName = `exports/${user.id}/${year}_${String(month).padStart(2, "0")}_${timestamp}.csv`;
+  const suffix = all ? `all_${timestamp}` : `${year}_${String(month).padStart(2, "0")}_${timestamp}`;
+  const fileName = `${user.id}/exports/${suffix}.csv`;
 
   const { error: uploadError } = await supabase.storage
     .from("receipts")
@@ -51,7 +54,7 @@ export async function POST(request: NextRequest) {
     });
 
   if (uploadError) {
-    return NextResponse.json({ error: "Failed to upload CSV" }, { status: 500 });
+    return NextResponse.json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 });
   }
 
   // Create signed URL valid for 30 days

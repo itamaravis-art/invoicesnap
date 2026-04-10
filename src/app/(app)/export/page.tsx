@@ -25,6 +25,7 @@ function ExportContent() {
   const [month, setMonth] = useState(parseInt(searchParams.get("month") || String(new Date().getMonth() + 1)));
   const [accountants, setAccountants] = useState<Accountant[]>([]);
   const [selectedAccountant, setSelectedAccountant] = useState<string>("");
+  const [sendAll, setSendAll] = useState(false);
   const [sending, setSending] = useState("");
   const [result, setResult] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const supabase = createClient();
@@ -58,24 +59,25 @@ function ExportContent() {
       const res = await fetch("/api/export/csv-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year, month }),
+        body: JSON.stringify(sendAll ? { all: true } : { year, month }),
       });
 
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        showResult("error", d.error || "לא נמצאו קבלות לחודש זה");
+        showResult("error", d.error || "לא נמצאו קבלות");
         return;
       }
 
       const data = await res.json();
       const monthName = MONTHS[month - 1];
       const formatNis = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
+      const periodLabel = sendAll ? "כל הקבלות" : `${monthName} ${year}`;
 
-      const subject = `דוח קבלות ${monthName} ${year}`;
+      const subject = `דוח קבלות ${periodLabel}`;
       const cleanBody = [
         `שלום ${acct.name},`,
         ``,
-        `מצורף דוח הקבלות לחודש ${monthName} ${year}:`,
+        `מצורף דוח ${periodLabel}:`,
         ``,
         `סה״כ הוצאות: ${formatNis(data.total_amount)}`,
         `מע״מ לניכוי: ${formatNis(data.total_vat)}`,
@@ -173,22 +175,50 @@ function ExportContent() {
       {/* Period selector */}
       <div className="bg-surface-container-lowest rounded-3xl p-4 space-y-3">
         <h3 className="font-bold text-on-surface text-sm">תקופה</h3>
-        <div className="flex gap-2">
-          <select
-            value={month}
-            onChange={(e) => setMonth(parseInt(e.target.value))}
-            className="flex-1 px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+
+        {/* Tabs: specific month vs all */}
+        <div className="flex gap-2 p-1 bg-surface-container-low rounded-xl">
+          <button
+            onClick={() => setSendAll(false)}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+              !sendAll ? "bg-primary text-on-primary shadow-sm" : "text-on-surface-variant"
+            }`}
           >
-            {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
-          </select>
-          <select
-            value={year}
-            onChange={(e) => setYear(parseInt(e.target.value))}
-            className="px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+            חודש מסוים
+          </button>
+          <button
+            onClick={() => setSendAll(true)}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+              sendAll ? "bg-primary text-on-primary shadow-sm" : "text-on-surface-variant"
+            }`}
           >
-            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+            כל הקבלות
+          </button>
         </div>
+
+        {!sendAll && (
+          <div className="flex gap-2">
+            <select
+              value={month}
+              onChange={(e) => setMonth(parseInt(e.target.value))}
+              className="flex-1 px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+            >
+              {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+            </select>
+            <select
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+              className="px-4 py-3 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface text-sm"
+            >
+              {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        )}
+        {sendAll && (
+          <p className="text-xs text-on-surface-variant text-center py-2">
+            כל הקבלות במערכת יישלחו בקובץ CSV אחד
+          </p>
+        )}
       </div>
 
       {/* Accountant selector */}
