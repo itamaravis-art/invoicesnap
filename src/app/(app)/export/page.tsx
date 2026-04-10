@@ -55,59 +55,78 @@ function ExportContent() {
     if (!acct?.email) { showResult("error", "לרואה החשבון אין כתובת אימייל"); return; }
     setSending("email");
     try {
-      // Fetch CSV data from API
-      const res = await fetch("/api/export/csv-link", {
+      // Try sending via Gmail API (automatic - requires Google connected)
+      const gmailRes = await fetch("/api/export/gmail-send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(sendAll ? { all: true } : { year, month }),
+        body: JSON.stringify({
+          accountant_id: selectedAccountant,
+          ...(sendAll ? { all: true } : { year, month }),
+        }),
       });
 
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        showResult("error", d.error || "לא נמצאו קבלות");
+      if (gmailRes.ok) {
+        const data = await gmailRes.json();
+        showResult("success", `✓ הדוח נשלח אוטומטית מ-${data.from} אל ${data.sent_to} (${data.receipt_count} קבלות)`);
         return;
       }
 
-      const data = await res.json();
-      const monthName = MONTHS[month - 1];
-      const formatNis = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
-      const periodLabel = sendAll ? "כל הקבלות" : `${monthName} ${year}`;
+      // Gmail API failed - check reason
+      const gmailErr = await gmailRes.json().catch(() => ({}));
 
-      // 1. Auto-download the CSV file to user's device
-      const blob = new Blob([data.csv], { type: "text/csv; charset=utf-8" });
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = sendAll
-        ? `invoicesnap_all_receipts.csv`
-        : `invoicesnap_${year}_${String(month).padStart(2, "0")}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      if (gmailErr.needs_connect || gmailErr.needs_reconnect) {
+        // Fallback: use Gmail compose URL + CSV download
+        const csvRes = await fetch("/api/export/csv-link", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(sendAll ? { all: true } : { year, month }),
+        });
+        if (!csvRes.ok) {
+          showResult("error", "חבר את Google בהגדרות > Google Drive כדי לשלוח אוטומטית");
+          return;
+        }
+        const csvData = await csvRes.json();
+        const monthName = MONTHS[month - 1];
+        const periodLabel = sendAll ? "כל הקבלות" : `${monthName} ${year}`;
+        const formatNis = (n: number) => new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS" }).format(n);
 
-      // 2. Open mailto with pre-filled body and instructions
-      const subject = `דוח קבלות ${periodLabel}`;
-      const cleanBody = [
-        `שלום ${acct.name},`,
-        ``,
-        `מצורף דוח ${periodLabel}:`,
-        ``,
-        `סה״כ הוצאות: ${formatNis(data.total_amount)}`,
-        `מע״מ לניכוי: ${formatNis(data.total_vat)}`,
-        `מספר קבלות: ${data.receipt_count}`,
-        ``,
-        `קובץ ה-CSV המלא הורד זה עתה למכשיר שלך.`,
-        `אנא צרף אותו להודעה זו לפני השליחה.`,
-        ``,
-        `תודה!`,
-      ].join("\n");
+        // Download CSV
+        const blob = new Blob([csvData.csv], { type: "text/csv; charset=utf-8" });
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = sendAll
+          ? `invoicesnap_all_receipts.csv`
+          : `invoicesnap_${year}_${String(month).padStart(2, "0")}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 
-      const mailto = `mailto:${acct.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(cleanBody)}`;
-      setTimeout(() => { window.location.href = mailto; }, 300);
-      showResult("success", `הקובץ הורד (${data.receipt_count} קבלות). אפליקציית המייל נפתחת - צרף את הקובץ להודעה.`);
+        // Open Gmail compose URL (works on all devices with Gmail)
+        const subject = `דוח קבלות ${periodLabel}`;
+        const cleanBody = [
+          `שלום ${acct.name},`,
+          ``,
+          `מצורף דוח ${periodLabel}:`,
+          ``,
+          `סה״כ הוצאות: ${formatNis(csvData.total_amount)}`,
+          `מע״מ לניכוי: ${formatNis(csvData.total_vat)}`,
+          `מספר קבלות: ${csvData.receipt_count}`,
+          ``,
+          `אנא צרף את הקובץ CSV שהורד זה עתה.`,
+          ``,
+          `תודה!`,
+        ].join("\n");
+
+        const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${encodeURIComponent(acct.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(cleanBody)}`;
+        setTimeout(() => { window.open(gmailComposeUrl, "_blank"); }, 300);
+        showResult("success", `הקובץ הורד. Gmail נפתח - צרף את הקובץ ושלח. (טיפ: חבר את Google בהגדרות לשליחה אוטומטית)`);
+      } else {
+        showResult("error", gmailErr.error || "שגיאה בשליחה");
+      }
     } catch {
-      showResult("error", "שגיאה ביצירת הדוח. בדוק את החיבור.");
+      showResult("error", "שגיאה בשליחה. בדוק את החיבור.");
     }
     finally { setSending(""); }
   }
